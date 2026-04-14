@@ -27,9 +27,28 @@ Scan all JSONL session files from:
 
 Each `.jsonl` file is one session. Parse each line as JSON.
 
+**Skip files under `*/subagents/*`** — these are agent-spawned sessions, not direct user interaction.
+
+The parent directory name encodes the project path, e.g. `-Users-nvie-Projects-liveblocks` → project "liveblocks". Use this for grouping by project.
+
 ### Step 2: Extract user messages
 
-From each session, extract messages where the type is `"user"`. Focus on the text content of these messages.
+From each session, extract messages where `type` is `"user"`. The JSONL schema:
+
+```json
+{
+  "type": "user",
+  "isMeta": false,
+  "message": {
+    "role": "user",
+    "content": "..." // string, or array of {type: "text", text: "..."} blocks
+  }
+}
+```
+
+- Text lives at `obj.message.content` (not `obj.content`)
+- **Skip messages with `isMeta: true`** — these are system-injected (hook output, command caveats), not typed by the user
+- Content can be a string or a list of content blocks; extract `text` from blocks where `type == "text"`
 
 ### Step 3: Identify correction and preference signals
 
@@ -41,6 +60,8 @@ Filter for messages that match these patterns:
 - **Frustration signals**: user restating something they've said before, or clarifying after a misunderstanding
 
 Ignore routine messages like "yes", "thanks", "looks good", simple task requests without preference signals, or one-off debugging instructions unlikely to recur.
+
+**Cross-project recurrence is the strongest signal.** If the same correction appears in 2+ unrelated projects, it's almost certainly a global CLAUDE.md candidate. Patterns appearing in only one project are more likely project-specific context — treat them with lower priority.
 
 ### Step 4: Classify destinations
 
@@ -57,9 +78,9 @@ Check whether the preference is **already captured** in an existing CLAUDE.md or
 Present a summary table sorted by frequency (most repeated first):
 
 ```
-| # | Pattern | Freq | Sessions | Destination | Status |
-|---|---------|------|----------|-------------|--------|
-| 1 | description | N | session-ids | global/project/memory | new/exists |
+| # | Pattern | Freq | Sessions | Status |
+|---|---------|------|----------|--------|
+| 1 | description | N | session-ids | new/exists |
 ```
 
 For each entry include:
@@ -67,7 +88,6 @@ For each entry include:
 - **One-line description** of the preference or correction
 - **Frequency**: how many times it appeared across sessions
 - **Session IDs**: which sessions contained it (use the session directory/file name)
-- **Destination**: where it should be persisted
 - **Status**: whether it's already captured somewhere or new
 
 ### Step 6: Interactive review
@@ -84,6 +104,7 @@ Do NOT batch-apply changes without explicit user approval for each one.
 ## Important Notes
 
 - Session files can be large. Process them efficiently — stream line by line rather than loading entire files into memory.
+- Start with main sessions only (skip `*/subagents/*`). This drastically reduces noise.
 - Some sessions may be very old or irrelevant. If there are many sessions, consider asking the user if they want to limit the time range.
 - Be honest about ambiguous cases. If a message could be a one-off correction or a lasting preference, flag the ambiguity.
 - Respect privacy: session data may contain sensitive information. Do not output raw session content beyond the relevant quotes needed for review.
