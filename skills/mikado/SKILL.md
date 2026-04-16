@@ -31,9 +31,8 @@ project's `.gitignore` is not touched).
 Each graph file has two sections: a **Graph** (scannable checklist) and
 **Details** (rich context for nodes that need it).
 
-Every node in the graph gets a short `[#id]` tag. Only nodes that need
-extra explanation get a corresponding heading in the Details section --
-self-explanatory nodes can skip it.
+Nodes that have a corresponding heading in the Details section get a short
+`[#id]` tag linking to it. Self-explanatory nodes omit the tag.
 
 ```markdown
 # Mikado: Extract shared utils
@@ -41,10 +40,10 @@ self-explanatory nodes can skip it.
 ## Graph
 
 - [ ] Extract shared utils into `@app/utils` package [#goal]
-  - [ ] Move date helpers to shared package [#move-date]
-    - [x] Create `@app/utils` package scaffolding [#scaffold]
-    - [ ] Resolve circular dep between `core` and `helpers` [#circular-dep]
-  - [ ] Update all import paths [#update-imports]
+  - [ ] Move date helpers to shared package
+    - [x] Create `@app/utils` package scaffolding
+    - [ ] Resolve circular dep between `core` and `helpers` [#circular_dep]
+  - [ ] Update all import paths
 
 ## Details
 
@@ -52,7 +51,7 @@ self-explanatory nodes can skip it.
 The backend and frontend both have duplicate date/string utilities.
 We want a single shared package to reduce drift.
 
-### #circular-dep -- Resolve circular dep between `core` and `helpers`
+### #circular_dep -- Resolve circular dep between `core` and `helpers`
 `core/index.ts` imports from `helpers/date`, but `helpers/date` imports
 `core/types`. Need to extract the shared types into a leaf package first,
 or inline the two types that `helpers/date` actually uses.
@@ -68,9 +67,12 @@ or inline the two types that `helpers/date` actually uses.
 
 ### Node ID rules
 
-- IDs are short lowercase slugs: `[#move-date]`, `[#circular-dep]`
-- Every node must have a unique `[#id]` tag
+- IDs are short lowercase slugs using underscores (not hyphens), so they
+  behave as a single word in Vim: `[#circular_dep]`, `[#goal]`
+- Only add a `[#id]` tag to a node if it has a matching `### #id` heading
+  in the Details section. Omit the tag for self-explanatory nodes.
 - When adding new prerequisite nodes, generate a short descriptive slug
+  using underscores as separators
 
 ### Details section rules
 
