@@ -4,9 +4,10 @@ A collection of [Claude Code skills](https://docs.anthropic.com/en/docs/claude-c
 
 ## Available Skills
 
-| Skill                              | Description                                                                                                                          |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| [self-review](skills/self-review/) | Analyze past Claude Code sessions to surface repeated corrections and preferences, then persist them as CLAUDE.md rules or memories. |
+| Skill                              | Description                                                                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| [mikado](skills/mikado/)           | Mikado method workflow for complex refactorings -- break large changes into safe, incremental steps with automatic revert-on-failure. |
+| [self-review](skills/self-review/) | Analyze past Claude Code sessions to surface repeated corrections and preferences, then persist them as CLAUDE.md rules or memories.  |
 
 ## Installation
 
