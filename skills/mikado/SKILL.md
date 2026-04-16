@@ -136,12 +136,14 @@ _If the change works (builds, tests pass):_
 
 _If something breaks:_
 - Identify what went wrong.
-- Add newly discovered prerequisites as children of the current leaf in the
-  graph file. Explain each one briefly to the user and ask for confirmation
-  before saving.
-- After updating the graph, **revert all uncommitted changes** with
-  `git checkout -- .` (only tracked files) so the working tree is clean.
-- Show the updated graph and explain what was learned.
+- Explain to the user what broke and what prerequisites you think need to
+  be added. **Do NOT update the graph or revert changes yet.**
+- Stop and let the user inspect the local changes. The user may want to
+  look at the diff, verify your conclusions, or adjust the plan.
+- Wait for the user to explicitly tell you to:
+  - Update the graph (add the new prerequisites), and/or
+  - Revert the local changes (`git checkout -- .`)
+- Only then perform those actions.
 
 **Step E -- Report**
 - Show the current state of the graph (what's done, what's next).
@@ -151,8 +153,9 @@ _If something breaks:_
 ## Important rules
 
 - **Never commit autonomously.** Only commit when the user explicitly asks.
-- **Always revert on failure.** Do not try to fix forward during a Mikado
-  cycle; the whole point is to revert and record.
+- **Never revert autonomously.** When something breaks, report your findings
+  and let the user decide when to revert. Always confirm with the user before
+  running `git checkout`.
 - **Ask before complex decisions.** If a leaf is ambiguous or the
   prerequisites are unclear, ask the user rather than guessing.
 - **Keep the graph file updated.** It is the single source of truth.
