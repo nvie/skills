@@ -53,7 +53,10 @@ user will review and submit the PR themselves. **You MUST NOT run
 8. **Present to the user:**
    - Base branch and head branch
    - The drafted title and body (as readable text)
-   - The clickable URL (user opens it themselves)
+   - The URL as a short markdown link: `[Click here to open the PR](<url>)`.
+     **Never print the raw URL** -- long pre-populated URLs wrap across many
+     lines in the terminal and become impossible to click reliably. Always
+     hide the URL behind the short link text.
 
 ## nvie's PR writing style
 
@@ -167,7 +170,9 @@ When done, show:
 - **Head:** `<current-branch>`
 - **Title:** _drafted title_
 - **Body:** _drafted body as readable markdown_
-- **URL:** the clickable pre-populated URL
+- **URL:** `[Click here to open the PR](<url>)` -- render as a markdown link
+  so the terminal shows a short, reliably-clickable label. Never paste the
+  raw URL.
 
 ## Critical rules
 
