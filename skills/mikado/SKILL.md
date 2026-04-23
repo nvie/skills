@@ -83,7 +83,7 @@ or inline the two types that `helpers/date` actually uses.
 
 ## Invocation modes
 
-### 1. `/mikado --goal "<description>"`
+### 1. `/mikado goal "<description>"`
 
 Create a new Mikado graph:
 
@@ -94,22 +94,39 @@ Create a new Mikado graph:
 4. Ensure `.mikado/` is in `.git/info/exclude`.
 5. Show the user the created graph and confirm the goal.
 
-### 2. `/mikado --switch "<slug-or-partial>"`
+### 2. `/mikado switch "<slug-or-partial>"`
 
 Switch the `current.md` symlink to a different existing graph file.
 
-### 3. `/mikado --list`
+### 3. `/mikado list`
 
 List all graph files in `.mikado/`, indicate which is current, and show
 progress (done/total counts).
 
-### 4. `/mikado` (no arguments -- the main loop)
+### 4. `/mikado later "<description>"`
+
+Add a follow-up item (non-blocking, **not** a prerequisite) attached to the
+current step. Follow-ups are work identified while tackling a step but which
+shouldn't block its completion -- things to revisit later.
+
+1. Determine the current step: the actionable leaf most recently being worked
+   on (or the one the user just confirmed in Step B of the main loop). If
+   ambiguous, ask the user which step to attach to.
+2. Append the item to a `## Follow-ups` section at the bottom of the current
+   graph file, creating the section if it doesn't exist. Format:
+   `- [ ] <description> (from: <current-step-label>)`
+3. Follow-ups are **never** promoted to graph nodes automatically. They live
+   outside the prereq tree so they don't gate progress on the goal. The user
+   decides later whether to turn any into real nodes, address them ad-hoc, or
+   drop them.
+
+### 5. `/mikado` (no arguments -- the main loop)
 
 This is the core cycle. Run it repeatedly to make incremental progress.
 
 **Step A -- Load state**
 - Read `.mikado/current.md`. If missing, ask the user for a goal (then behave
-  like `--goal`).
+  like `goal`).
 - Parse the graph. Find all **actionable leaf nodes** (unchecked items whose
   children, if any, are all checked).
 
