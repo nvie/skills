@@ -10,15 +10,19 @@ description: >
 
 # Open a PR (pre-populated, reviewed manually)
 
-Generate a pre-populated GitHub PR creation URL for the current branch. The
-user will review and submit the PR themselves. **You MUST NOT run
-`gh pr create`.**
+Open a pre-populated GitHub PR creation page in the browser for the current
+branch. The user reviews and submits the PR themselves in the browser.
+
+> [!IMPORTANT]
+> You open the page with **`gh pr create --web`**. The `--web` flag is
+> **mandatory**: it opens the pre-filled page in the browser without creating
+> anything. Running `gh pr create` **without `--web`** creates the PR instantly,
+> with no chance to edit -- never do that.
 
 ## Process
 
-1. **Determine the current branch and repo.** Run:
-   - `git rev-parse --abbrev-ref HEAD` for the current branch
-   - `gh repo view --json nameWithOwner -q .nameWithOwner` for `owner/repo`
+1. **Determine the current branch.** Run `git rev-parse --abbrev-ref HEAD`.
+   (gh detects the repo itself, so `owner/repo` isn't needed.)
 
 2. **Determine the base branch.**
    - If the user specifies one, use it.
@@ -39,35 +43,34 @@ user will review and submit the PR themselves. **You MUST NOT run
 
 6. **Draft the title and body** following the style guide below.
 
-7. **Construct the URL:**
+7. **Write the body to a temp file.** The body contains backticks, `$`,
+   quotes, and newlines -- passing it inline would mangle it in the shell.
+   Write it verbatim to e.g. `$(mktemp)` and pass it with `--body-file`.
 
-   ```
-   https://github.com/{owner}/{repo}/compare/{base}...{head}?expand=1&title={url_encoded_title}&body={url_encoded_body}
-   ```
-
-   URL-encode the title and body. **Do NOT use plain `encodeURIComponent`** --
-   it leaves `! ' ( ) *` unencoded, and a literal `(` or `)` inside the URL
-   breaks the markdown link in step 8 (terminals like Ghostty truncate the
-   link at the paren, making it un-clickable). Use this stricter encoder, which
-   also percent-encodes those characters:
+8. **Open the pre-filled page with `gh pr create --web`:**
 
    ```bash
-   node -e "console.log(encodeURIComponent(process.argv[1]).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase()))" "your string"
+   gh pr create --web \
+     --base '<base>' \
+     --head '<head>' \
+     --title '<title>' \
+     --body-file '<tmpfile>'
    ```
 
-   After encoding, the URL must contain **no** literal `(`, `)`, `'`, `!`, or
-   `*`. If it does, the encoding step was skipped -- redo it.
+   - **`--web` is mandatory** -- it opens the pre-filled "Open a pull request"
+     page in the browser and creates nothing. Without it, the PR is created
+     instantly. Never omit it.
+   - Pass `--head '<branch>'` explicitly so gh skips its fork/push prompt and
+     just builds the URL for that branch.
+   - gh hands the URL straight to the browser, so there is no clickable
+     terminal link and Ghostty's 2048-byte OSC limit never applies.
+   - gh refuses to open if the full URL reaches **8192 bytes** (it errors with
+     `cannot open in browser: maximum URL length exceeded`). That's a ~8 KB
+     body, far beyond normal. If you hit it, tell the user the body is too
+     long for the URL rather than silently dropping content.
 
-8. **Present to the user:**
-   - Base branch and head branch
-   - The drafted title and body (as readable text)
-   - The URL as a short markdown link: `[Click here to open the PR](<url>)`.
-     **Never print the raw URL** -- long pre-populated URLs wrap across many
-     lines in the terminal and become impossible to click reliably. Always
-     hide the URL behind the short link text.
-   - The URL inside the `(...)` must be fully encoded (step 7). A single
-     literal `(`, `)`, or `'` in there will silently break the clickable link
-     in the terminal.
+   This opens the page for review; the user submits it. It does **not** create
+   the PR.
 
 ## nvie's PR writing style
 
@@ -175,19 +178,16 @@ Use whichever of these fit the change; omit the rest.
 
 ## Output format to show the user
 
-When done, show:
+After `gh pr create --web` opens the page, keep the output minimal. Do **not**
+echo the title, body, or URL back into the terminal -- the user reviews
+everything in the browser. Just confirm:
 
-- **Base:** `<base-branch>`
-- **Head:** `<current-branch>`
-- **Title:** _drafted title_
-- **Body:** _drafted body as readable markdown_
-- **URL:** `[Click here to open the PR](<url>)` -- render as a markdown link
-  so the terminal shows a short, reliably-clickable label. Never paste the
-  raw URL. The URL must be fully percent-encoded (no literal `(`, `)`, `'`,
-  `!`, `*`), or the terminal link won't be clickable.
+> I've opened the PR draft for you in the browser.
 
 ## Critical rules
 
-- **NEVER** run `gh pr create`. The user reviews and submits manually.
+- **ALWAYS** include `--web` on `gh pr create`. Without it, the PR is created
+  instantly with no chance to edit. With it, gh only opens the pre-filled page
+  in the browser; the user reviews and submits there.
 - **NEVER** add a "Test plan" section.
-- Only generate the URL. The user opens it, edits if needed, and submits.
+- Only open the pre-filled page. The user reviews, edits if needed, and submits.
