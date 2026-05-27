@@ -36,25 +36,43 @@ branch. The user reviews and submits the PR themselves in the browser.
 4. **Check if the branch is pushed.** If not, ask before pushing with
    `git push -u origin <branch>`.
 
-5. **Analyze the diff to draft the PR content.**
-   - `git log --oneline <base>..HEAD` for commit subjects
-   - `git diff <base>...HEAD --stat` for an overview
-   - `git diff <base>...HEAD` for key files, to understand the actual changes
+5. **Delegate diff-analysis and drafting to a fast subagent.** This is the slow
+   part -- reading the whole diff and writing a styled body -- so hand it to a
+   faster model and keep the large diff out of this conversation. Spawn one
+   Agent (`subagent_type: general-purpose`, `model: sonnet`) whose prompt
+   contains:
 
-6. **Draft the title and body** following the style guide below.
+   - The `<base>` and `<head>` branches from steps 1-2, and that the repo is
+     the current working directory.
+   - The instruction to analyze the change with `git log --oneline <base>..HEAD`
+     (commit subjects), `git diff <base>...HEAD --stat` (overview), and
+     `git diff <base>...HEAD` on the key files (the actual changes). nvie's
+     commits are atomic with good messages -- lean on them; only deep-read a
+     file's diff when the commit subjects don't explain it.
+   - The **entire "nvie's PR writing style" section below, verbatim.** This
+     conversation already has it in context -- paste it into the subagent
+     prompt so the subagent matches the style without guessing.
+   - This exact output contract:
 
-7. **Write the body to a temp file.** The body contains backticks, `$`,
-   quotes, and newlines -- passing it inline would mangle it in the shell.
-   Write it verbatim to e.g. `$(mktemp)` and pass it with `--body-file`.
+     > Write the PR body (GitHub-flavored markdown) verbatim to a fresh temp
+     > file created with `mktemp`. Do **not** run `gh`, push, commit, or modify
+     > anything else. Then return exactly these two lines and nothing else:
+     >
+     > ```
+     > TITLE: <the one-line PR title>
+     > BODY_FILE: <absolute path to the temp file>
+     > ```
 
-8. **Open the pre-filled page with `gh pr create --web`:**
+   Parse `TITLE:` and `BODY_FILE:` from the subagent's result.
+
+6. **Open the pre-filled page with `gh pr create --web`:**
 
    ```bash
    gh pr create --web \
      --base '<base>' \
      --head '<head>' \
      --title '<title>' \
-     --body-file '<tmpfile>'
+     --body-file '<BODY_FILE>'
    ```
 
    - **`--web` is mandatory** -- it opens the pre-filled "Open a pull request"
