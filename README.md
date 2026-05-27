@@ -4,13 +4,13 @@ A collection of [Claude Code skills](https://docs.anthropic.com/en/docs/claude-c
 
 ## Available Skills
 
-| Skill                              | Description                                                                                                                                                                  |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [implement](skills/implement/)     | Implement a spec while keeping a running (throwaway) implementation-notes.md of every decision, deviation, and tradeoff the spec didn't cover -- review the deltas, not the whole diff. |
-| [mikado](skills/mikado/)           | Mikado method workflow for complex refactorings -- break large changes into safe, incremental steps with automatic revert-on-failure.                                        |
-| [pr](skills/pr/)                   | Open a pre-populated GitHub PR creation page with title and body drafted in nvie's personal style (no boilerplate "Test plan").                                              |
-| [proper](skills/proper/)           | Solve a request the Proper™ way: diagnose architectural friction, propose a refactoring that makes the feature fit naturally, hand off to /mikado for non-trivial execution. |
-| [self-review](skills/self-review/) | Analyze past Claude Code sessions to surface repeated corrections and preferences, then persist them as CLAUDE.md rules or memories.                                         |
+| Skill                              | Maturity                                            | Description                                                                                                                                                                             |
+| ---------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [implement](skills/implement/)     | 0 - Experimental                                    | Implement a spec while keeping a running (throwaway) implementation-notes.md of every decision, deviation, and tradeoff the spec didn't cover -- review the deltas, not the whole diff. |
+| [mikado](skills/mikado/)           | 5 - Happy with                                      | Mikado method workflow for complex refactorings -- break large changes into safe, incremental steps with automatic revert-on-failure.                                                   |
+| [pr](skills/pr/)                   | 4 - Happy with, but trying to make it faster        | Open a pre-populated GitHub PR creation page with title and body drafted in nvie's personal style (no boilerplate "Test plan").                                                         |
+| [proper](skills/proper/)           | 4 - Happy with, but needs more practical experience | Solve a request the Proper™ way: diagnose architectural friction, propose a refactoring that makes the feature fit naturally, hand off to /mikado for non-trivial execution.            |
+| [self-review](skills/self-review/) | 3 - Can be improved                                 | Analyze past Claude Code sessions to surface repeated corrections and preferences, then persist them as CLAUDE.md rules or memories.                                                    |
 
 ## Installation
 
