@@ -45,10 +45,18 @@ user will review and submit the PR themselves. **You MUST NOT run
    https://github.com/{owner}/{repo}/compare/{base}...{head}?expand=1&title={url_encoded_title}&body={url_encoded_body}
    ```
 
-   URL-encode using Node or Python:
+   URL-encode the title and body. **Do NOT use plain `encodeURIComponent`** --
+   it leaves `! ' ( ) *` unencoded, and a literal `(` or `)` inside the URL
+   breaks the markdown link in step 8 (terminals like Ghostty truncate the
+   link at the paren, making it un-clickable). Use this stricter encoder, which
+   also percent-encodes those characters:
+
    ```bash
-   node -e "console.log(encodeURIComponent(process.argv[1]))" "your string"
+   node -e "console.log(encodeURIComponent(process.argv[1]).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase()))" "your string"
    ```
+
+   After encoding, the URL must contain **no** literal `(`, `)`, `'`, `!`, or
+   `*`. If it does, the encoding step was skipped -- redo it.
 
 8. **Present to the user:**
    - Base branch and head branch
@@ -57,6 +65,9 @@ user will review and submit the PR themselves. **You MUST NOT run
      **Never print the raw URL** -- long pre-populated URLs wrap across many
      lines in the terminal and become impossible to click reliably. Always
      hide the URL behind the short link text.
+   - The URL inside the `(...)` must be fully encoded (step 7). A single
+     literal `(`, `)`, or `'` in there will silently break the clickable link
+     in the terminal.
 
 ## nvie's PR writing style
 
@@ -172,7 +183,8 @@ When done, show:
 - **Body:** _drafted body as readable markdown_
 - **URL:** `[Click here to open the PR](<url>)` -- render as a markdown link
   so the terminal shows a short, reliably-clickable label. Never paste the
-  raw URL.
+  raw URL. The URL must be fully percent-encoded (no literal `(`, `)`, `'`,
+  `!`, `*`), or the terminal link won't be clickable.
 
 ## Critical rules
 
