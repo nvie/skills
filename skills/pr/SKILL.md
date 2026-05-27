@@ -6,12 +6,17 @@ description: >
   asks to "open a PR", "create a PR", or "draft a PR" for the current branch.
   This skill never creates the PR itself -- the user reviews and submits it
   manually.
+model: sonnet
 ---
 
 # Open a PR (pre-populated, reviewed manually)
 
 Open a pre-populated GitHub PR creation page in the browser for the current
 branch. The user reviews and submits the PR themselves in the browser.
+
+This skill runs on Sonnet (`model: sonnet` in the frontmatter) -- drafting the
+body is the bulk of the work and Sonnet does it noticeably faster. The override
+lasts only for this turn; the session model resumes afterward.
 
 > [!IMPORTANT]
 > You open the page with **`gh pr create --web`**. The `--web` flag is
@@ -36,43 +41,24 @@ branch. The user reviews and submits the PR themselves in the browser.
 4. **Check if the branch is pushed.** If not, ask before pushing with
    `git push -u origin <branch>`.
 
-5. **Delegate diff-analysis and drafting to a fast subagent.** This is the slow
-   part -- reading the whole diff and writing a styled body -- so hand it to a
-   faster model and keep the large diff out of this conversation. Spawn one
-   Agent (`subagent_type: general-purpose`, `model: sonnet`) whose prompt
-   contains:
+5. **Analyze the diff and draft the title and body** in nvie's style (see
+   below):
+   - `git log --oneline <base>..HEAD` for commit subjects
+   - `git diff <base>...HEAD --stat` for an overview
+   - `git diff <base>...HEAD` on the key files for the actual changes. nvie's
+     commits are atomic with good messages -- lean on them; deep-read a file's
+     diff only when the subjects don't explain it.
 
-   - The `<base>` and `<head>` branches from steps 1-2, and that the repo is
-     the current working directory.
-   - The instruction to analyze the change with `git log --oneline <base>..HEAD`
-     (commit subjects), `git diff <base>...HEAD --stat` (overview), and
-     `git diff <base>...HEAD` on the key files (the actual changes). nvie's
-     commits are atomic with good messages -- lean on them; only deep-read a
-     file's diff when the commit subjects don't explain it.
-   - The **entire "nvie's PR writing style" section below, verbatim.** This
-     conversation already has it in context -- paste it into the subagent
-     prompt so the subagent matches the style without guessing.
-   - This exact output contract:
-
-     > Write the PR body (GitHub-flavored markdown) verbatim to a fresh temp
-     > file created with `mktemp`. Do **not** run `gh`, push, commit, or modify
-     > anything else. Then return exactly these two lines and nothing else:
-     >
-     > ```
-     > TITLE: <the one-line PR title>
-     > BODY_FILE: <absolute path to the temp file>
-     > ```
-
-   Parse `TITLE:` and `BODY_FILE:` from the subagent's result.
-
-6. **Open the pre-filled page with `gh pr create --web`:**
+6. **Write the body to a temp file and open the pre-filled page.** The body
+   contains backticks, `$`, quotes, and newlines that would mangle if passed
+   inline, so write it verbatim to `$(mktemp)` and pass it with `--body-file`:
 
    ```bash
    gh pr create --web \
      --base '<base>' \
      --head '<head>' \
      --title '<title>' \
-     --body-file '<BODY_FILE>'
+     --body-file '<tmpfile>'
    ```
 
    - **`--web` is mandatory** -- it opens the pre-filled "Open a pull request"
