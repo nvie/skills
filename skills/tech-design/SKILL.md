@@ -1,6 +1,6 @@
 ---
 name: tech-design
-description: Draft, review, pressure-test, compare, and polish technical design documents for product, API, SDK, infrastructure, storage, migration, reliability, security, privacy, performance, data model, or architecture work. Use when Codex should help engineers make and defend a technical decision, turn rough notes into a review-ready TD, review an existing TD, compare alternatives, or plan rollout/testing/migration/rollback for a proposed technical change.
+description: Draft, review, pressure-test, compare, and polish technical design documents for product, API, SDK, infrastructure, storage, migration, reliability, security, privacy, performance, data model, or architecture work. Use when an engineer wants to make and defend a technical decision, turn rough notes into a review-ready TD, review an existing TD, compare alternatives, or plan rollout/testing/migration/rollback for a proposed technical change.
 ---
 
 # Tech Design
