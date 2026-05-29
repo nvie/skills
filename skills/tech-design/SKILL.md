@@ -19,12 +19,13 @@ Infer the mode from the user's request. Ask only when the intent is genuinely am
 
 ## Output
 
-Whenever the deliverable is a TD (draft, compression, or revised document), output the **complete** document, in full, every time — never a summary or diff, even on minor revisions. The author copies the whole thing into Notion via `/copy`.
+Whenever the deliverable is a TD (draft, compression, or revised document), write it to a local markdown file on disk rather than printing it in the chat. Choose a sensible filename derived from the title (e.g. `tech-design-create-op-redesign.md`) and write it to the current working directory. Then tell the user the filename in one line, and offer to start a `/grill-me` session to refine the document.
 
-- Render the TD as raw markdown directly in the response. Do **not** wrap it in a code fence — Notion pastes raw markdown natively, but a fenced block becomes a single code block.
-- Keep the document as one contiguous block so a single `/copy` captures it. Put any out-of-document commentary (review findings, meta-notes) after a `---` divider, so the copyable document stays clean.
+Do **not** print the document body in the chat — it's long, the user will read it in an editor, and repeating it here adds no value.
 
-Stick to the markdown subset Notion parses on paste:
+On revisions, overwrite the same file.
+
+Write the markdown in the dialect Notion understands on paste (for when the user copies it into Notion):
 
 - **Headings:** only `#`, `##`, `###`. Notion has three heading levels; `####` and deeper paste as plain text. Use `#` for the title, `##` for sections, `###` for subsections.
 - **Tables:** GFM pipe tables. Inline formatting only inside cells.
@@ -92,16 +93,9 @@ These sections add almost no value in most TDs and should be omitted unless the 
 
 For migration and compatibility: only write about these if there's something genuinely tricky or non-obvious. If the change is purely internal or trivially backward-compatible, skip it.
 
-## Critique pass
+## After drafting
 
-After drafting, include a short out-of-document critique (below the `---` divider):
-
-- What's the weakest assumption?
-- What's the riskiest part of the design?
-- What's missing or uncertain?
-- What's a likely reviewer objection, and how would you respond?
-
-Keep this brief. It's a thinking aid, not another formal section.
+Once the file is written, offer to run `/grill-me` to pressure-test the design — poke holes in assumptions, surface likely reviewer objections, and sharpen the recommendation. This is the refinement loop, not part of the document itself.
 
 ## Review behavior
 
