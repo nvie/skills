@@ -6,7 +6,6 @@ description: >
   asks to "open a PR", "create a PR", or "draft a PR" for the current branch.
   This skill never creates the PR itself -- the user reviews and submits it
   manually.
-model: sonnet
 ---
 
 # Open a PR (pre-populated, reviewed manually)
