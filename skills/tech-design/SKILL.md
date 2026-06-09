@@ -61,21 +61,27 @@ Start every TD with a short **untitled intro block** — one to three paragraphs
 Then use sections as the content demands. Common ones:
 
 ### Context / Background
+
 What's the current situation? What breaks, slows down, or becomes painful? Prefer concrete examples over vague claims. Code snippets showing the problematic current shape are often the most efficient way to explain.
 
 ### Proposed solution
+
 The heart of the doc. Explain the design — new types, API surface, data flow, behavioral changes, whatever is relevant. Don't force it into sub-sections. If there are multiple moving parts, describe them in the order a reader needs to understand them. Code blocks here are often worth a thousand words. When a block is long, use inline comments to call out the lines that matter — let the signal stand out from the noise.
 
 ### Alternatives considered
+
 Only include this if real alternatives were considered and rejected. For each: what it is, why it's attractive, why it was rejected. Skip strawmen. A short prose paragraph per alternative is usually enough — tables only if comparing more than three options across several dimensions.
 
 ### Recommendation
-If there's more than one viable option, state the recommended one clearly and explain *why* in plain prose. What makes this the right trade-off? What assumptions does it rest on? What would change the recommendation? Keep it short and readable — don't cross-reference every earlier section by label or number, just say what you mean.
+
+If there's more than one viable option, state the recommended one clearly and explain _why_ in plain prose. What makes this the right trade-off? What assumptions does it rest on? What would change the recommendation? Keep it short and readable — don't cross-reference every earlier section by label or number, just say what you mean.
 
 ### Rollout
+
 Only include when there's something non-obvious to say about ordering, phasing, or risk management. Keep it short — ideally a brief paragraph or a small bullet list of steps and their rationale. Skip it if the rollout is straightforward.
 
 ### Open questions
+
 A bullet list. No table, no owner column, no "needed by" or "impact" fields. Just the questions. Only include genuine blockers or decisions that need input.
 
 ## What to leave out

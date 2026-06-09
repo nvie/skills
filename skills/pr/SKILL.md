@@ -29,6 +29,7 @@ lasts only for this turn; the session model resumes afterward.
    (gh detects the repo itself, so `owner/repo` isn't needed.)
 
 2. **Determine the base branch.**
+
    - If the user specifies one, use it.
    - Otherwise, find the nearest local branch ancestor. This correctly handles
      stacked branches (if `B` is stacked on `A`, base is `A`, not `main`).
@@ -42,6 +43,7 @@ lasts only for this turn; the session model resumes afterward.
 
 5. **Analyze the diff and draft the title and body** in nvie's style (see
    below):
+
    - `git log --oneline <base>..HEAD` for commit subjects
    - `git diff <base>...HEAD --stat` for an overview
    - `git diff <base>...HEAD` on the key files for the actual changes. nvie's
@@ -146,7 +148,7 @@ Use whichever of these fit the change; omit the rest.
 ### Identifiers and renames
 
 - Backticks around all code identifiers, types, file paths
-- Unicode arrow `→` for renames in prose: ``Rename `toolName` → `name` ``
+- Unicode arrow `→` for renames in prose: `` Rename `toolName` → `name`  ``
 - Use `diff` fenced code blocks to show type/API changes, e.g.:
 
   ````markdown

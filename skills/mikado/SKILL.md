@@ -48,10 +48,12 @@ Nodes that have a corresponding heading in the Details section get a short
 ## Details
 
 ### #goal -- Extract shared utils into `@app/utils` package
+
 The backend and frontend both have duplicate date/string utilities.
 We want a single shared package to reduce drift.
 
 ### #circular_dep -- Resolve circular dep between `core` and `helpers`
+
 `core/index.ts` imports from `helpers/date`, but `helpers/date` imports
 `core/types`. Need to extract the shared types into a leaf package first,
 or inline the two types that `helpers/date` actually uses.
@@ -125,16 +127,19 @@ shouldn't block its completion -- things to revisit later.
 This is the core cycle. Run it repeatedly to make incremental progress.
 
 **Step A -- Load state**
+
 - Read `.mikado/current.md`. If missing, ask the user for a goal (then behave
   like `goal`).
 - Parse the graph. Find all **actionable leaf nodes** (unchecked items whose
   children, if any, are all checked).
 
 **Step B -- Pick the next leaf**
+
 - If multiple actionable leaves exist, present them and ask the user which one
   to tackle. If only one, confirm it with the user briefly.
 
 **Step C -- Attempt the change**
+
 - Try to implement the chosen leaf node naively.
 - Run the project's build / type-check / tests if available (read CLAUDE.md or
   ask the user how to verify). If you are unsure what verification to run,
@@ -143,6 +148,7 @@ This is the core cycle. Run it repeatedly to make incremental progress.
 **Step D -- Evaluate the result**
 
 _If the change works (builds, tests pass):_
+
 - Tell the user: "Leaf done. Nothing broke. You can review the diff and
   commit when ready."
 - Do NOT commit automatically. Wait for the user.
@@ -152,6 +158,7 @@ _If the change works (builds, tests pass):_
   parent is now actionable.
 
 _If something breaks:_
+
 - Identify what went wrong.
 - Explain to the user what broke and what prerequisites you think need to
   be added. **Do NOT update the graph or revert changes yet.**
@@ -163,6 +170,7 @@ _If something breaks:_
 - Only then perform those actions.
 
 **Step E -- Report**
+
 - Show the current state of the graph (what's done, what's next).
 - Stop and wait for the user to invoke `/mikado` again or give other
   instructions.

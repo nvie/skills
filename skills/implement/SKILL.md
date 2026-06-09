@@ -35,8 +35,8 @@ you exercised judgment instead of re-reading the entire diff to find them.
 The notes file captures the **delta between the spec and reality**. That is its
 entire job.
 
-- **It is NOT a diary.** Faithfully implementing a clear spec item produces *no
-  note*. If the spec said "add a `POST /login` endpoint" and you added exactly
+- **It is NOT a diary.** Faithfully implementing a clear spec item produces _no
+  note_. If the spec said "add a `POST /login` endpoint" and you added exactly
   that, there is nothing to record. The diff already shows it.
 - **It IS a record of every place you had to decide something the spec left
   open**, diverged from what the spec literally said, traded one thing off
@@ -79,8 +79,8 @@ Resolve the argument to an actual spec:
 
 Restate the spec in one or two sentences and confirm scope before writing code.
 If the spec is large or architecturally awkward, consider `/proper` (to reshape
-first) or `/mikado` (to sequence a complex build) — see *Relationship to other
-skills* below.
+first) or `/mikado` (to sequence a complex build) — see _Relationship to other
+skills_ below.
 
 ### Step 2 — Create the notes file lazily
 
@@ -115,8 +115,8 @@ categories below), **append it immediately** — do not wait until the end and t
 to reconstruct from memory. The small decisions are exactly the ones you'll
 forget, and they're often the ones the user most wants to see.
 
-For high-stakes or ambiguous forks, stop and ask instead of logging (Step *Log,
-or stop and ask?*).
+For high-stakes or ambiguous forks, stop and ask instead of logging (Step _Log,
+or stop and ask?_).
 
 ### Step 4 — Entry format
 

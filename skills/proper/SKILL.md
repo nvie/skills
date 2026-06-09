@@ -57,15 +57,15 @@ Investigate the code as it exists today and answer:
 
 Common friction patterns to look for:
 
-| Smell | What it looks like |
-| --- | --- |
-| Missing abstraction | The feature requires touching N similar call sites |
-| Leaky boundary | A module knows things it shouldn't, to make this work |
-| Conflated concerns | One function would gain a second responsibility |
+| Smell                 | What it looks like                                           |
+| --------------------- | ------------------------------------------------------------ |
+| Missing abstraction   | The feature requires touching N similar call sites           |
+| Leaky boundary        | A module knows things it shouldn't, to make this work        |
+| Conflated concerns    | One function would gain a second responsibility              |
 | Hard-coded assumption | A value/behaviour is baked in that the feature needs to vary |
-| Missing seam | There is no clean place to plug new behaviour in |
-| Implicit contract | Callers rely on side effects the new feature would break |
-| Wrong ownership | The data or logic lives in the wrong layer for this feature |
+| Missing seam          | There is no clean place to plug new behaviour in             |
+| Implicit contract     | Callers rely on side effects the new feature would break     |
+| Wrong ownership       | The data or logic lives in the wrong layer for this feature  |
 
 Name the friction explicitly. If there is no friction (the feature really
 does fit cleanly with a small tactical change), **say so**. `/proper` is
@@ -98,13 +98,13 @@ scope; only widen if the user agrees.
 
 Present a short, honest comparison so the user can decide with eyes open:
 
-| | Tactical | Strategic |
-| --- | --- | --- |
-| What it touches | ... | ... |
-| Effort | small | medium / large |
-| Next similar request | painful again | easy |
-| Risk of regression | ... | ... |
-| What it teaches the codebase | nothing | a new concept |
+|                              | Tactical      | Strategic      |
+| ---------------------------- | ------------- | -------------- |
+| What it touches              | ...           | ...            |
+| Effort                       | small         | medium / large |
+| Next similar request         | painful again | easy           |
+| Risk of regression           | ...           | ...            |
+| What it teaches the codebase | nothing       | a new concept  |
 
 Recommend a path, but make the trade-off real. A throwaway script, a
 soon-to-be-deleted module, or a genuinely one-off request can absolutely
