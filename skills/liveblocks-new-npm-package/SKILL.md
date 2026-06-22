@@ -40,36 +40,29 @@ No `README.md`, no `description`, no extra fields.
 1. **Ask the user for the package name** if not already provided (e.g. `foobar`
    → full name becomes `@liveblocks/foobar`).
 
-2. **Output a single shell script the user can paste and run:**
+2. **Create the temp dir and files yourself** using Bash:
 
 ```sh
-PKG="foobar"   # ← substitute the actual short name
-
 DIR=$(mktemp -d)
-mkdir -p "$DIR/@liveblocks/$PKG"
-cd "$DIR/@liveblocks/$PKG"
-
-cat > package.json <<'EOF'
-{
-  "name": "@liveblocks/foobar",
-  "version": "0.0.0",
-  "license": "Apache-2.0",
-  "main": "index.js"
-}
-EOF
-
-echo '// Placeholder' > index.js
-
-npm publish --access public
+mkdir -p "$DIR"
 ```
 
-Adapt `PKG` and the `"name"` field to the actual package name the user provided.
+Then write `package.json` (with the correct package name) and `index.js`
+(`// Placeholder`) into `$DIR` using the Write tool.
 
-3. **Remind the user:**
+3. **Tell the user the single command to run:**
+
+```
+cd <DIR> && npm publish --access public
+```
+
+Substitute `<DIR>` with the actual temp path that was created.
+
+4. **Remind the user:**
 
    - They must be logged in to npm with an account that has publish rights to the
      `@liveblocks` org (`npm whoami` to check, `npm login` if not).
    - After publishing, the temp dir can be deleted.
    - The `--access public` flag is required for scoped packages on the free tier.
 
-4. **Do not** run any of these commands yourself — hand them to the user to execute.
+5. **Do not** run `npm publish` yourself — the user runs that final step.
