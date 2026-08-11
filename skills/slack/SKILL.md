@@ -61,17 +61,17 @@ Blank line between paragraphs, one line per bullet. That's it.
 
 Use Slack's own markup -- it survives both a plain paste and cmd+shift+f:
 
-| Want          | Write                      |
-| ------------- | -------------------------- | ------- |
-| bold          | `*bold*` (single asterisk) |
-| italic        | `_italic_`                 |
-| strikethrough | `~strike~`                 |
-| inline code   | `` `code` ``               |
-| code block    | triple backticks           |
-| quote         | `> quoted`                 |
-| bullet        | `- item`                   |
-| numbered      | `1. item`                  |
-| link          | bare URL, or `<url         | label>` |
+| Want          | Write                          |
+| ------------- | ------------------------------ |
+| bold          | `*bold*` (single asterisk)     |
+| italic        | `_italic_`                     |
+| strikethrough | `~strike~`                     |
+| inline code   | `` `code` ``                   |
+| code block    | triple backticks               |
+| quote         | `> quoted`                     |
+| bullet        | `• item` (literal bullet char) |
+| numbered      | `1. item`                      |
+| link          | bare URL, or `<url\|label>`    |
 
 Avoid:
 
@@ -81,6 +81,42 @@ Avoid:
 - **Tables** -- Slack has no table syntax; they paste as garbage. Use bullets.
 - **Nested bullets more than one level deep** -- Slack flattens them anyway
 - **Horizontal rules** (`---`)
+
+## Bullets: use a literal `•`, never `-` or `*`
+
+Slack's cmd+shift+f does **not** turn pasted `- item` or `* item` lines into
+native bullets. They stay as literal text with a dash or asterisk in front,
+which looks sloppy. (Slack only auto-converts those when you _type_ them
+directly into the composer, not on paste.)
+
+So don't emit markdown list syntax at all. Write a real Unicode bullet
+character `•` (U+2022) followed by one space:
+
+```
+• First thing
+• Second thing
+• Third thing
+```
+
+Not:
+
+```
+- First thing
+* Second thing
+```
+
+This pastes correctly with or without cmd+shift+f, because there's nothing
+to convert -- the bullet is already there.
+
+For the rare nested level, indent with two spaces and use `◦` (U+25E6):
+
+```
+• Parent item
+  ◦ Child item
+```
+
+Numbered lists are fine as `1.` / `2.` -- digits followed by a period read
+correctly as plain text either way.
 
 Keep formatting light. A Slack message with five bold phrases and three
 nested lists reads like a memo, not a message. Most messages need zero
@@ -125,6 +161,7 @@ CI should be green from here on -- if you still see a random red, ping me, that'
 - [ ] Response contains the message and nothing else
 - [ ] No hard-wrapped lines
 - [ ] Single asterisks for bold, no `##` headings, no tables
+- [ ] Bullets are literal `•` characters, never `-` or `*`
 - [ ] Sounds like a person, not a changelog -- but properly capitalized
 - [ ] Sentences start with a capital letter
 - [ ] No invented facts
