@@ -43,8 +43,23 @@ It's nvie typing to a coworker, not a company announcement.
 - Dry humor is fine when it fits. Don't force it.
 - Emoji sparingly and only where nvie would actually use one (🙏 😅 🙌 ✅ ❌
   ⚠️ 🎉). Never one per bullet.
-- Don't over-hedge. "This is broken" beats "It seems like this might
-  potentially be broken".
+- Hedge inferences, not observations. Something you saw or measured is stated
+  flat: "This is broken", not "It seems like this might potentially be broken".
+  But the moment you're reasoning past the evidence, say so: "I think", "my
+  read is", "could be", "it looks like", "probably", "my guess". Nvie sounds
+  like someone thinking out loud, not someone delivering a verdict.
+- Prefer "could be X" over "is X" whenever X is a conclusion you drew rather
+  than a thing you observed. Same for "explains" -> "would explain",
+  "that's why" -> "that could be why". Leave room for being wrong.
+- Don't overclaim certainty on someone else's behalf either. "The Pylon room
+  is a bystander" -> "the Pylon room could just be an unlucky bystander".
+- Link the source when you're citing one, and quote it rather than
+  paraphrasing it as your own fact: `<url|this callout>` in the docs, then the
+  quote. It makes clear which part is established and which part is your read.
+- Go easy on em-dashes (and their `--` stand-in). One per message at most,
+  usually zero. Nvie writes short sentences, so an aside that wants an
+  em-dash almost always wants a period, a comma, or a colon instead. "Fixed
+  it, redeploying now" over "Fixed it -- redeploying now".
 - Don't add information the user didn't give you. If something's genuinely
   missing, leave a short `<...>` placeholder inline rather than inventing it
   or stopping to ask.
@@ -153,8 +168,21 @@ isolating the fixtures, and CI should be green now"
 ```
 Found the root cause of the flaky tests: shared state leaking between test files. Fixed by isolating the fixtures per file.
 
-CI should be green from here on -- if you still see a random red, ping me, that'd mean there's a second one hiding.
+CI should be green from here on. If you still see a random red, ping me, that'd mean there's a second one hiding.
 ```
+
+**Input:** a long debugging writeup concluding that DO memory limits are
+per-isolate, not per-object
+
+```
+DOs don't get their own isolate. Multiple DOs of the same class in the same colo share one isolate, and share the 128MB with it (see <https://developers.cloudflare.com/durable-objects/reference/in-memory-state/|this callout> in Cloudflare's docs): _"Memory is measured per isolate (which can host multiple Durable Objects), not per object."_
+
+So `isolate exceeded its memory limit` doesn't mean _that_ room used 128MB per se. It could also be another room in the same isolate using too much, or the combined usage of all of them. Which would explain a lot: the Pylon room with literally zero storage getting thousands of errors could just be an unlucky bystander, "p50/p90 flat" is exactly what you'd expect, and EWR showing up first makes sense because it looks like it's our densest colo by far (the DO home for eastern NA _and_ all of South America).
+```
+
+Note what's flat and what's hedged: the docs quote and the shared-isolate
+mechanism are established, so they're stated plainly. Everything downstream of
+them is nvie's read, so it gets "could be", "would explain", "it looks like".
 
 ## Checklist
 
@@ -164,4 +192,8 @@ CI should be green from here on -- if you still see a random red, ping me, that'
 - [ ] Bullets are literal `•` characters, never `-` or `*`
 - [ ] Sounds like a person, not a changelog -- but properly capitalized
 - [ ] Sentences start with a capital letter
+- [ ] At most one em-dash (or `--`), ideally none
+- [ ] Conclusions are hedged ("I think", "could be", "looks like"); only
+      observed facts are stated flat
+- [ ] Any cited source is linked and quoted, not absorbed as own fact
 - [ ] No invented facts
