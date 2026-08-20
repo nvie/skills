@@ -114,11 +114,18 @@ Example openings:
 ### Tone and voice
 
 - First person: "I've added…", "My solution is…", "I've verified…"
-- Direct, factual, no hedging fluff
+- Direct and factual about what the PR *does*. Hedging about whether it will
+  *work* is fine and authentic: "Hopefully we can get some better insights",
+  "I have no idea if this is a good starting point, but we can always adjust",
+  "Maybe this way we'll figure out if...". Uncertainty about outcomes, yes;
+  hedging fluff about the change itself, no.
 - Dry humor is welcome when it fits ("The Big Inline™", "Baby steps.",
   "after weeks of climbing 🙌"). Don't force it.
 - Em-dashes sparingly
 - Use emoji sparingly for emphasis (🙏 😇 🙌 ✅ ❌ ⚠️ 🧹 ✨ 🏷️ 📦)
+- When citing a source (docs, a spec, an upstream issue), quote it and link
+  it rather than paraphrasing it as your own fact. Keeps clear which part is
+  established and which part is your read.
 
 ### Content patterns
 
@@ -138,7 +145,10 @@ Use whichever of these fit the change; omit the rest.
   behavioral change, not a pure refactoring!**". Always flag when a PR that
   looks like a refactoring actually changes runtime behavior.
 - **Links**: related PRs (`#1437`), Linear tickets (`LB-2048`), Slack threads
-  (`liveblocks.slack.com/archives/...`), tech design docs (Notion).
+  (`liveblocks.slack.com/archives/...`), tech design docs (Notion). PR bodies
+  are GitHub-flavored markdown, so a labelled link is `[label](url)` and a
+  bare URL auto-links. Never Slack's `<url|label>` -- that's Slack API mrkdwn
+  and GitHub renders it as literal text.
 - **GitHub callouts**: `> [!NOTE]`, `> [!IMPORTANT]`, `> [!WARNING]` for
   info the reviewer really should not miss.
 - **Screenshots**: for UI / rendered output, with "Before" / "After" labels
@@ -169,17 +179,86 @@ Use whichever of these fit the change; omit the rest.
 - No exhaustive bullet list of every tiny change when a sentence would do
 - No passive voice boilerplate like "Tests have been added". Say "I've added
   tests for X."
+- No Slack markup: `<url|label>` links, `*single-asterisk bold*`, or literal
+  `•` bullets. GitHub wants `[label](url)`, `**bold**`, and `-` bullets.
 
 ### Short vs long PRs
+
+Length tracks **conceptual complexity**, not diff size and not file count.
+Ask: how much does the reviewer need in their head before the diff makes
+sense? A 600-line mechanical rename needs one sentence. A 60-line change to
+a consensus protocol might need three paragraphs and a diagram.
+
+The two examples below are the calibration point for *simple* work: "add a
+log attribute", "add a counter and warn past a threshold". Changes at that
+complexity get ~150 words, two or three paragraphs, no headings. If a draft
+for something that simple is longer, cut it.
 
 - **Trivial PRs** (typo fix, version bump, flaky test skip): one short sentence
   or just `Fixes LB-1234.` is enough. Sometimes the body is empty -- that's
   fine.
-- **Medium PRs**: a paragraph of `This PR …`, plus a small bullet list if there
-  are distinct things it does.
-- **Large/refactoring PRs**: open with `This PR …`, then use headings
-  (`## Why`, `## Before` / `## After`, `## Next steps`, chapters). Call out
-  behavioral vs pure-refactoring. Flag reviewer guidance up front.
+- **Medium PRs** (one self-contained idea, however many files): a paragraph of
+  `This PR …`, plus a small bullet list if there are distinct things it does.
+  **No headings at all** at this size. Reach for `## Why` only when there's
+  real background that doesn't fit the opening paragraph, and it's fine to put
+  it at the *bottom*, as context the reviewer can drop into after they know
+  what the PR does.
+- Default to the shorter shape. Most PRs are medium, and a medium PR written
+  long reads like a report. Motivation usually belongs woven into the opening
+  sentence, not in its own section.
+- **Large/complex PRs** (several interacting ideas, a new subsystem, a
+  migration, anything where the reviewer needs orientation before the diff):
+  open with `This PR …`, then use headings (`## Why`, `## Before` / `## After`,
+  `## Next steps`, chapters). Call out behavioral vs pure-refactoring. Flag
+  reviewer guidance up front. Big diff alone doesn't qualify a PR for this
+  shape -- interacting moving parts do.
+
+### Example bodies
+
+Two real ones, both small PRs (~60-80 lines changed). Note the register:
+concrete, first person, motivation in the opening sentence, illustrative
+examples over abstract description, and no headings unless earned.
+
+`Track which isolate each Durable Object runs in` (+64 -1, 5 files):
+
+```markdown
+This PR adds an `isolateId` to every log line the Cloudflare worker emits, plus a `doSeq` on Durable Object log lines saying which DO instance it is within that isolate. Hopefully we can get some better insights into when certain rooms that are showing symptoms might actually be victims of other badly-behaving rooms in the same isolate.
+
+New attributes that would show up in Datadog:
+- `isolateId` (a random value)
+- `doSeq` (a sequential number assigned to each Durable Object within the same isolate)
+
+Therefore `(isolateId, doSeq)` should uniquely describe a durable object instance in our logs.
+
+For context, see this [Slack thread](https://liveblocks.slack.com/archives/...).
+```
+
+`Warn when in-flight fetch count exceeds a high-water mark` (+76 -1, 2 files),
+where a `## Why` at the bottom earns its place:
+
+```markdown
+This PR instruments adds a high-watermark warning for our AsyncRefreshCaches, so we can answer "are Hyperdrive fetches hanging?"
+
+What gets kept in check now is each AsyncRefreshCache's number of _simultaneous_ in-flight promises. This count grows and shrinks naturally as fetches are happening, but if fetches never settle, then the count might just grow unboundedly, and I'd want to know about it. So this PR sets an upper limit of 25 to start with (I have no idea if this is a good starting point, but we can always adjust to reduce log noise).
+
+Once the 25 high water mark is exceeded for a particular cache, it logs a warning and raises the new high water mark. Over time this means we could see logs appear in Datadog like this:
+
+- `Cache projectById has 25 in-flight fetches`
+- `Cache externalIdToRoomCache has 25 in-flight fetches`
+- ...
+
+Maybe this way we'll figure out if there is a memory leak happening somewhere.
+
+## Why
+
+Sibling to #1895.
+
+There exist 10 `AsynchronousRefreshCache` singletons at module scope in `kv-cache.ts`. Each holds an `inFlightFetches` map that self-cleans in `.finally()`, so it's bounded by concurrent fetches... unless... a fetch never settles.
+```
+
+Things to copy from these: the "so we can answer <question>" framing, sample
+output the reviewer can picture, `Sibling to #NNNN.` for related PRs, and
+trailing-off ellipses where the thought genuinely trails off.
 
 ## Output format to show the user
 

@@ -54,8 +54,8 @@ It's nvie typing to a coworker, not a company announcement.
 - Don't overclaim certainty on someone else's behalf either. "The Pylon room
   is a bystander" -> "the Pylon room could just be an unlucky bystander".
 - Link the source when you're citing one, and quote it rather than
-  paraphrasing it as your own fact: `<url|this callout>` in the docs, then the
-  quote. It makes clear which part is established and which part is your read.
+  paraphrasing it as your own fact: the quote, then the bare URL. It makes
+  clear which part is established and which part is your read.
 - Go easy on em-dashes (and their `--` stand-in). One per message at most,
   usually zero. Nvie writes short sentences, so an aside that wants an
   em-dash almost always wants a period, a comma, or a colon instead. "Fixed
@@ -86,7 +86,7 @@ Use Slack's own markup -- it survives both a plain paste and cmd+shift+f:
 | quote         | `> quoted`                     |
 | bullet        | `• item` (literal bullet char) |
 | numbered      | `1. item`                      |
-| link          | bare URL, or `<url\|label>`    |
+| link          | bare URL, nothing else         |
 
 Avoid:
 
@@ -96,6 +96,10 @@ Avoid:
 - **Tables** -- Slack has no table syntax; they paste as garbage. Use bullets.
 - **Nested bullets more than one level deep** -- Slack flattens them anyway
 - **Horizontal rules** (`---`)
+- **Labelled links** -- `<url|label>` is Slack's _API_ mrkdwn, for
+  `chat.postMessage`. Pasted into the composer it stays literal, and
+  cmd+shift+f only linkifies the URL inside it, leaving a stray `<` and
+  `|label>` as visible text. Same for markdown `[label](url)`.
 
 ## Bullets: use a literal `•`, never `-` or `*`
 
@@ -175,7 +179,7 @@ CI should be green from here on. If you still see a random red, ping me, that'd 
 per-isolate, not per-object
 
 ```
-DOs don't get their own isolate. Multiple DOs of the same class in the same colo share one isolate, and share the 128MB with it (see <https://developers.cloudflare.com/durable-objects/reference/in-memory-state/|this callout> in Cloudflare's docs): _"Memory is measured per isolate (which can host multiple Durable Objects), not per object."_
+DOs don't get their own isolate. Multiple DOs of the same class in the same colo share one isolate, and share the 128MB with it. Cloudflare's docs say it outright: _"Memory is measured per isolate (which can host multiple Durable Objects), not per object."_ https://developers.cloudflare.com/durable-objects/reference/in-memory-state/
 
 So `isolate exceeded its memory limit` doesn't mean _that_ room used 128MB per se. It could also be another room in the same isolate using too much, or the combined usage of all of them. Which would explain a lot: the Pylon room with literally zero storage getting thousands of errors could just be an unlucky bystander, "p50/p90 flat" is exactly what you'd expect, and EWR showing up first makes sense because it looks like it's our densest colo by far (the DO home for eastern NA _and_ all of South America).
 ```
@@ -196,4 +200,5 @@ them is nvie's read, so it gets "could be", "would explain", "it looks like".
 - [ ] Conclusions are hedged ("I think", "could be", "looks like"); only
       observed facts are stated flat
 - [ ] Any cited source is linked and quoted, not absorbed as own fact
+- [ ] Links are bare URLs, never `<url|label>` or `[label](url)`
 - [ ] No invented facts
