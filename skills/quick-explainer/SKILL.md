@@ -42,23 +42,32 @@ it happening on a screen, it isn't concrete yet.
 
 ## Output shape
 
-Four parts, in this order. Nothing else — no heading, no preamble, no "hope
-this helps", no offer to go deeper.
+Four parts, in this order. Nothing else — no preamble, no "hope this helps", no
+offer to go deeper.
 
 ```
 **<one line: what this thing is, in the plainest words available>**
 
-Today:
-  <the smallest scenario where the problem is visible, 3-6 lines, in order>
+### Today
 
-After:
-  <the exact same scenario, problem gone, 3-5 lines>
+<the smallest scenario where the problem is visible, 3-6 lines, in order>
 
-The trick: <one line — the single idea that makes the difference>
+### After
+
+<the exact same scenario, problem gone, 3-5 lines>
+
+**The trick:** <one line — the single idea that makes the difference>
 ```
 
 `The trick:` is optional and often the best line in the output. Drop it if the
 answer is genuinely just "do the obvious thing that nobody did yet".
+
+The output is rendered as markdown in a terminal, so **the headings carry the
+structure, not whitespace.** Leading spaces collapse when rendered, and faking
+them with `&nbsp;` prints the entity literally. Write every line flush left, one
+beat per line, and let `### Today` / `### After` do the separating. If a beat
+genuinely has sub-items, write a real markdown list — those nest and render;
+hand-made indentation does not.
 
 **Target: 20 lines.** It should fit on screen without scrolling — that's the
 point of the whole thing. When it runs long, shrink the example first: a smaller
@@ -86,7 +95,7 @@ Find the **smallest scenario where the difference is visible.**
   - Build/tooling → the command and its output
 - **Repro steps are a first-class example form** — often the best one, because
   the reader can go do it. "Open the doc in two tabs. Type in A. Close B. A's
-  cursor list still shows B." is a perfect `Today:` block. If the source has
+  cursor list still shows B." is a perfect `### Today` block. If the source has
   steps to reproduce, use them close to verbatim.
 - If the source document already has a good motivating example, use it. It's
   grounded, and reusing it means the user recognizes it when they get there.
@@ -95,15 +104,16 @@ Find the **smallest scenario where the difference is visible.**
 
 Not everything is a bug fix. Keep the same shape, change the labels:
 
-- **New capability** → `Can't today:` / `Can after:`
+- **New capability** → `### Can't today` / `### Can after`
 - **Pure refactor** → the pain *is* the code shape, so show the code shape:
-  `Today you write:` / `After you write:`
-- **Mikado graph / plan** → `The blocker right now:` / `After the graph is green:`
-  and replace `The trick:` with `First leaf to do: <the one node with no
-  remaining prerequisites>`. Which node to start on is the most useful thing a
+  `### Today you write` / `### After you write`
+- **Mikado graph / plan** → `### The blocker right now` / `### After the graph is
+  green`, and replace `The trick:` with `**First leaf to do:** <the one node with
+  no remaining prerequisites>`. Which node to start on is the most useful thing a
   plan can tell someone re-entering it.
-- **A decision doc with alternatives** → `Today:` / `After:` for the *chosen*
-  option only. Mentioning the rejected ones is theory, and theory is banned.
+- **A decision doc with alternatives** → `### Today` / `### After` for the
+  *chosen* option only. Mentioning the rejected ones is theory, and theory is
+  banned.
 
 ## Banned
 
@@ -121,6 +131,8 @@ purpose:
 - Hedging that isn't load-bearing. "This appears to potentially address" → "This
   fixes".
 - Caveats, edge cases, risks, open questions, testing notes.
+- `&nbsp;`, or any other HTML entity, or leading spaces used as indentation.
+  Lines are flush left; the headings do the structuring.
 - Anything after `The trick:` line.
 
 ## Ground it in something real
@@ -187,19 +199,21 @@ multi-tab tool calls run at-most-once
 ```
 **Tool calls fire twice when you have the app open in two tabs.**
 
-Today:
-  You have the doc open in Tab A and Tab B.
-  The AI decides to call `sendEmail(to: bob@example.com)`.
-  Both tabs receive the message. Both tabs run it.
-  Bob gets two emails.
+### Today
 
-After:
-  Both tabs still receive the message.
-  Tab A claims the call first, runs it, writes the result back.
-  Tab B sees it's already claimed and does nothing.
-  Bob gets one email.
+You have the doc open in Tab A and Tab B.
+The AI decides to call `sendEmail(to: bob@example.com)`.
+Both tabs receive the message. Both tabs run it.
+Bob gets two emails.
 
-The trick: claiming is a compare-and-swap in room storage, so exactly one tab wins.
+### After
+
+Both tabs still receive the message.
+Tab A claims the call first, runs it, writes the result back.
+Tab B sees it's already claimed and does nothing.
+Bob gets one email.
+
+**The trick:** claiming is a compare-and-swap in room storage, so exactly one tab wins.
 ```
 
 **Input:** `/quick-explainer` on a branch fixing `LiveList` convergence
@@ -207,18 +221,20 @@ The trick: claiming is a compare-and-swap in room storage, so exactly one tab wi
 ```
 **Two clients could disagree about a list forever, even after everything synced.**
 
-Today:
-  Alice and Bob both have [a, b, c].
-  Alice moves `c` to the front. Bob deletes `c`. Same instant.
-  Alice ends up with [c, a, b]. Bob ends up with [a, b].
-  Nothing ever fixes it. Refresh, and Alice's move silently vanishes.
+### Today
 
-After:
-  Same two ops, same instant.
-  Both end up with [a, b]. Delete wins, the move is dropped.
-  Refresh changes nothing.
+Alice and Bob both have [a, b, c].
+Alice moves `c` to the front. Bob deletes `c`. Same instant.
+Alice ends up with [c, a, b]. Bob ends up with [a, b].
+Nothing ever fixes it. Refresh, and Alice's move silently vanishes.
 
-The trick: moving an item that's already deleted is now a no-op instead of re-inserting it.
+### After
+
+Same two ops, same instant.
+Both end up with [a, b]. Delete wins, the move is dropped.
+Refresh changes nothing.
+
+**The trick:** moving an item that's already deleted is now a no-op instead of re-inserting it.
 ```
 
 **Input:** `/quick-explainer docs/td-decouple-transport.md` — a Mikado graph
@@ -226,18 +242,20 @@ The trick: moving an item that's already deleted is now a no-op instead of re-in
 ```
 **Goal: get the socket out of `Room`'s constructor so reconnect logic is testable.**
 
-The blocker right now:
-  You want a unit test for "reconnects after a dropped connection".
-  You call `new Room(...)` and it opens a real WebSocket immediately.
-  The test hangs waiting for a server that isn't there.
-  So every reconnect test today is e2e and the suite takes 40s.
+### The blocker right now
 
-After the graph is green:
-  `new Room(transport)` takes whatever transport you hand it.
-  The test hands it a fake, flips it to "disconnected", asserts the retry.
-  3ms, no server.
+You want a unit test for "reconnects after a dropped connection".
+You call `new Room(...)` and it opens a real WebSocket immediately.
+The test hangs waiting for a server that isn't there.
+So every reconnect test today is e2e and the suite takes 40s.
 
-First leaf to do: pull `SocketTransport` out behind an interface — nothing depends on it yet.
+### After the graph is green
+
+`new Room(transport)` takes whatever transport you hand it.
+The test hands it a fake, flips it to "disconnected", asserts the retry.
+3ms, no server.
+
+**First leaf to do:** pull `SocketTransport` out behind an interface — nothing depends on it yet.
 ```
 
 **Input:** `/quick-explainer` on a design doc that never states a concrete failure
@@ -265,6 +283,7 @@ Stop after the explainer. If they want more, they'll ask.
 - [ ] Today and After use the *same* scenario
 - [ ] Real names, real values, real numbers — nothing placeholder-shaped
 - [ ] No line numbers, no file paths, no changelog bullets
+- [ ] Every line flush left — no `&nbsp;`, no indentation doing structural work
 - [ ] No term used that the example hasn't grounded
 - [ ] The example is a real failure (report, repro steps, test, or traced
       through the diff), not one constructed to illustrate the point
