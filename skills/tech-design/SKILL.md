@@ -44,11 +44,23 @@ Try to identify: the problem, what breaks or becomes painful if nothing changes,
 
 These docs are read by senior engineers on a couch, not studied by a junior dev in an IDE. Write accordingly.
 
+**Be short.** Length is a cost the reader pays. Most TDs fit on one screen-and-a-bit; a big one is two pages. Before keeping a paragraph, ask what decision it changes for the reader — if none, cut it. Two tight paragraphs beat five loose ones. Never restate a point in different words for emphasis.
+
+**Ground every abstraction in an example.** Abstraction is fine, but a reader can only agree with a claim they can picture. Any sentence that stays at altitude — "makes composition awkward", "hard to reason about", "doesn't scale" — needs a concrete anchor immediately after it: a real call, a real type, a real number. Not:
+
+> The current API makes multi-step operations hard to reason about.
+
+But:
+
+> Today `createThread` + `attachFile` are two calls, so a crash in between leaves a thread with no file.
+
+The example should be one sentence or one small code block, not a subsection. If you can't produce one, the claim is probably too vague to keep.
+
 **Structure:** Let the content determine the structure, not the other way around. There is no fixed template. Every TD is different — a type-design doc looks nothing like a rollout plan. Use only the sections that genuinely add value. Don't add a section just because the template has one.
 
 **Prose over bullets:** Write in flowing paragraphs. Use bullet lists only when items are truly parallel and enumerable. Avoid the `- **Bolded Label:** Explanation` pattern except sparingly for the most important callouts. A wall of bold-bullets is exhausting to read.
 
-**Skip the obvious:** Don't explain things senior engineers already know. Don't enumerate consequences that follow trivially from the proposal. Don't state that tests should test the feature.
+**Skip the obvious:** Don't explain things senior engineers already know. Don't enumerate consequences that follow trivially from the proposal. Don't state that tests should test the feature. Don't write a paragraph of setup before the point — lead with the point.
 
 **Code and references:** Use code blocks for types, schemas, and short snippets when they clarify the design — they're often the clearest way to show a proposed type. Avoid long file paths and line numbers in prose; they make the doc feel like a robot wrote it and add no value to someone reading it on an iPad. If you need to point to something, say the function name or concept, not the full path.
 
@@ -56,7 +68,7 @@ These docs are read by senior engineers on a couch, not studied by a junior dev 
 
 ## Document structure
 
-Start every TD with a short **untitled intro block** — one to three paragraphs of plain prose that state the problem and the proposed fix (if there is one). No heading, no "TL;DR" label. If the document is early-stage or open for discussion, say so here in one sentence.
+Start every TD with a short **untitled intro block** — one or two short paragraphs of plain prose that state the problem and the proposed fix (if there is one). No heading, no "TL;DR" label. If the document is early-stage or open for discussion, say so here in one sentence.
 
 Then use sections as the content demands. Common ones:
 
@@ -105,6 +117,6 @@ Once the file is written, offer to run `/grill-me` to pressure-test the design �
 
 ## Review behavior
 
-When reviewing a TD, act like a senior technical reviewer. Check for: unclear problem, missing or unmeasurable goals, hidden scope creep, weak alternatives, unsupported recommendation, missing migration or rollback plan when it's non-trivial, vague claims ("fast", "scalable", "simple"), and unclear ownership.
+When reviewing a TD, act like a senior technical reviewer. Check for: unclear problem, missing or unmeasurable goals, hidden scope creep, weak alternatives, unsupported recommendation, missing migration or rollback plan when it's non-trivial, vague claims ("fast", "scalable", "simple"), abstract statements with no concrete example behind them, padding, and unclear ownership.
 
 For each issue: severity (blocking / important / nice-to-have), why it matters, suggested fix. Lead with the most important risks.
