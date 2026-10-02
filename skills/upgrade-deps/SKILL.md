@@ -78,7 +78,13 @@ message. Each gets: package name, from → to, and our usage sites. Each must:
   inspect `npm diff --diff=<pkg>@<from> --diff=<pkg>@<to>`.
 - Return exactly:
   - `verdict`: `trivial` or `attention`
-  - `severity` (if attention): `breaks` > `behavior` > `decision` > `cosmetic`
+  - `risk` (if attention), meaning how much harm it can do to the product if
+    it's shipped or ignored:
+    - `critical`: security fix we're exposed to, or possible data loss/corruption
+    - `high`: silent behavior change in code we use, or breaks runtime code
+    - `medium`: breaks tests/types/tooling (loud, so caught before it ships),
+      or needs a decision
+    - `low`: cosmetic, opt-in, or tooling-only consistency issues
   - `reason` (if attention): one line, citing our usage site if relevant
 
 `trivial` = no change touches API surface we use, or only additive/fix
@@ -94,23 +100,24 @@ verify.
 - **Red** → bisect: revert half the batch (restore `package.json` files +
   lockfile from `HEAD`, re-apply the other half, reinstall), verify, narrow
   down until the culprit(s) are isolated. Commit the green remainder.
-  Culprits move to the attention list with severity `breaks`.
+  Culprits move to the attention list, with their risk re-assessed in light
+  of what broke.
 
 ### 4. Report
 
-Sort attention items by severity, then by how much of our code they touch.
+Sort attention items by risk, then by how much of our code they touch.
 Output, and nothing else:
 
 ```
 Patch round: 3 need you.
 
-| name        | from    | to      | reason                                                      |
-|-------------|---------|---------|-------------------------------------------------------------|
-| zod         | 3.23.8  | 3.23.11 | `z.string().email()` regex tightened; we validate signup     |
-|             |         |         | emails with it (src/auth/schema.ts:14). Tests pass, but      |
-|             |         |         | existing users with odd emails could fail re-validation      |
-| vitest      | 2.1.3   | 2.1.5   | bumped → 4 tests in packages/core fail (fake timers)         |
-| @types/node | 22.7.4  | 22.7.9  | syncpack mismatch: apps/web pins 22.7.4 exactly              |
+| name        | from    | to      | reason                                                      | risk   |
+|-------------|---------|---------|-------------------------------------------------------------|--------|
+| zod         | 3.23.8  | 3.23.11 | `z.string().email()` regex tightened; we validate signup     | high   |
+|             |         |         | emails with it (src/auth/schema.ts:14). Tests pass, but      |        |
+|             |         |         | existing users with odd emails could fail re-validation      |        |
+| vitest      | 2.1.3   | 2.1.5   | bumped → 4 tests in packages/core fail (fake timers)         | medium |
+| @types/node | 22.7.4  | 22.7.9  | syncpack mismatch: apps/web pins 22.7.4 exactly              | low    |
 
 Pick one (default: zod), or "all" to batch-try + bisect.
 
@@ -120,7 +127,7 @@ Upgraded patch-level: react, react-dom, tsup, prettier, eslint-plugin-react, typ
 Rules:
 
 - **At most ~8 table rows** (half a terminal screen). If more items exist,
-  the last row is `| …and msw, undici, hono (3 more) | | | next message |`.
+  the last row is `| …and msw, undici, hono (3 more) | | | next message | |`.
 - Reasons are one line where possible; wrap only when the reason truly needs
   it. No mention of trivial packages beyond the final line.
 - The final line lists everything committed this round. If it'd exceed one
