@@ -140,6 +140,19 @@ Work through items with the user, one at a time, their pick. Typical moves:
   together via `gcm --yolo "<pkg> <from> → <to>"`.
 - They decline → add to the reject list, move on.
 
+**Formatter upgrades** (any formatter: prettier, biome, dprint, oxfmt,
+prettier/biome plugins, …): never ask, always do
+this as three separate commits:
+
+1. the version bump
+2. the reformat the new version causes in files that were already formatted
+3. a reformat of files that already failed the format check before the bump
+
+Skip any step that has no changes. Mention commits 2 and 3 in a line each
+only if something in them deserves a look (e.g. a rewrap inside a code
+block or formula). Otherwise they go on the final line like any other
+upgrade.
+
 Each green upgrade is committed as it lands. Pause only when something needs
 the user. When the attention list is empty, the round is done → next round.
 
