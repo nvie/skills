@@ -66,8 +66,8 @@ If a cooldown is set, **always** run the same command a second time without
 only appears in the second) is **held back**: a newer version exists but is
 still inside the cooldown. Record name, the cooldown-respecting target (or
 none), the held-back version, and when it clears (`npm view <pkg> time
---json` → publish time + cooldown). Never upgrade held-back versions; they
-only get reported (see step 4).
+--json` → publish time + cooldown). Held-back versions are skipped by
+default; the user can pick them per package (see steps 4 and 5).
 
 Nothing to upgrade → say so in one line (plus the held-back line, if any),
 move to the next round.
@@ -131,7 +131,7 @@ Patch round: 3 need you.
 Pick one (default: zod), or "all" to batch-try + bisect.
 
 Upgraded patch-level: react, react-dom, tsup, prettier, eslint-plugin-react, typescript-eslint (+9 more)
-In cooldown: hono 4.6.9 (clears in 2d), undici 6.21.1 (clears in 5h)
+In cooldown, skipped unless you pick them: hono 4.6.9 (clears in 2d), undici 6.21.1 (clears in 5h)
 ```
 
 Rules:
@@ -146,7 +146,9 @@ Rules:
   versions, in every round, even if nothing else is reported. Omit it only
   when there are none. Same `(+N more)` truncation rule.
 - Zero attention items → just the final line(s), then continue to the next
-  round. (Still pause before majors if the user said so.)
+  round, unless the `In cooldown:` line is present: then pause so the user
+  can pick from it (no answer / "continue" = skip them all). (Still pause
+  before majors if the user said so.)
 
 ### 5. Iterate
 
@@ -159,6 +161,11 @@ Work through items with the user, one at a time, their pick. Typical moves:
 - A fix on our side is needed → make it, verify, commit the upgrade + fix
   together via `gcm --yolo "<pkg> <from> → <to>"`.
 - They decline → add to the reject list, move on.
+- They pick a cooldown item → research it like step 2 (it wasn't
+  researched yet), then handle it like an attention item, bumping to the
+  held-back version. If the package manager itself enforces the cooldown
+  and refuses the install, stop and ask; never edit the cooldown config on
+  your own. Unpicked cooldown items are skipped when the round ends.
 
 **Formatter upgrades** (any formatter: prettier, biome, dprint, oxfmt,
 prettier/biome plugins, …): never ask, always do
