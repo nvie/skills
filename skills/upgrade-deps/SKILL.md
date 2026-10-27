@@ -61,7 +61,16 @@ Each round:
 npx npm-check-updates -t <target> -p <pm> [--workspaces] [--cooldown X] [--reject a,b] --jsonUpgraded
 ```
 
-Nothing to upgrade → say so in one line, move to the next round.
+If a cooldown is set, **always** run the same command a second time without
+`--cooldown`. Every package whose target differs between the two runs (or
+only appears in the second) is **held back**: a newer version exists but is
+still inside the cooldown. Record name, the cooldown-respecting target (or
+none), the held-back version, and when it clears (`npm view <pkg> time
+--json` → publish time + cooldown). Never upgrade held-back versions; they
+only get reported (see step 4).
+
+Nothing to upgrade → say so in one line (plus the held-back line, if any),
+move to the next round.
 
 ### 2. Research (parallel)
 
@@ -122,6 +131,7 @@ Patch round: 3 need you.
 Pick one (default: zod), or "all" to batch-try + bisect.
 
 Upgraded patch-level: react, react-dom, tsup, prettier, eslint-plugin-react, typescript-eslint (+9 more)
+In cooldown: hono 4.6.9 (clears in 2d), undici 6.21.1 (clears in 5h)
 ```
 
 Rules:
@@ -132,7 +142,10 @@ Rules:
   it. No mention of trivial packages beyond the final line.
 - The final line lists everything committed this round. If it'd exceed one
   line, name the first few and `(+N more)`.
-- Zero attention items → just the final line, then continue to the next
+- The `In cooldown:` line is **mandatory** whenever step 1 found held-back
+  versions, in every round, even if nothing else is reported. Omit it only
+  when there are none. Same `(+N more)` truncation rule.
+- Zero attention items → just the final line(s), then continue to the next
   round. (Still pause before majors if the user said so.)
 
 ### 5. Iterate
