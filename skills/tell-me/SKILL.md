@@ -54,6 +54,11 @@ around looking for a button that doesn't exist.
 - Unknown values (a name, a channel, an ID) get a `<placeholder>`, never an
   invented one.
 
+An unknown location still gets a link. Give the deepest URL you're sure
+of, falling back to the app's root if that's all you know:
+`open https://dash.cloudflare.com, find the Logpush job for the worker (exact location unknown)`.
+Never invent a deep URL; a correct root beats a broken deep link.
+
 ## What goes in the list
 
 Derive "next" from the conversation: what's been done, what's left, what the
@@ -85,4 +90,5 @@ and already in the env of the staging app.
 - [ ] Every step starts with a verb and fits on one line
 - [ ] URLs, menu paths, labels, values, commands are exact
 - [ ] Anything uncertain is marked or a `<placeholder>`, never invented
+- [ ] Every "open/find X in app Y" step has a link, at least the app's root
 - [ ] Verify and inform steps present where they apply
