@@ -194,15 +194,22 @@ starting?" is not a go-ahead.
     Don't repeat what it already says, even if it says it differently, and
     don't force a sentence in. If it already covers both, leave it alone.
   - **Write the purpose for every module,** not just the usage. "Who imports
-    this" alone doesn't tell a reader what the module is for. If a doc
-    comment right below (e.g. on the module's main class) already says it,
-    that counts.
+    this" alone doesn't tell a reader what the module is for. A doc comment
+    on the module's main export (e.g. its class) already counts when it's the
+    first thing below the imports. If other declarations come first, write a
+    purpose line in the header anyway.
+  - **A purpose line must add something the module's name doesn't.** "The
+    logic of the delivery coordinator" in `DeliveryCoordinator.ts` says
+    nothing new. Say what it decides or owns instead ("decides when delivery
+    workers are woken, and how much each may send").
 
 - On a test-only export, say so: `/** Exported only for its tests, which run its SQL against real Postgres. */`
 - Fix references in docs (design docs, READMEs) that point at moved code. Name
   the concept or symbol in plain text ("the consumer's `createDeliveryStore()`");
   don't add file paths or links, and drop dead ones rather than repointing
-  them.
+  them. Leave each edit as tidy as the text around it: rewrap the edited
+  paragraph to the doc's line width, and keep table columns aligned, even
+  when the doc as a whole isn't prettier-formatted.
 
 ### 6. Verify
 
