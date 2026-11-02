@@ -139,6 +139,16 @@ starting?" is not a go-ahead.
 ### 5. Execute as a pure move
 
 - Concatenate, don't rewrite. Behaviour must not change.
+- **Move verbatim, never improve.** Moved code keeps its exact body, names,
+  signatures and comments. Don't fix bugs you discover, rename things,
+  tighten types, simplify logic, merge near-duplicates or "modernize" syntax
+  along the way, however tempting or obvious. The only edits allowed are the
+  ones the move itself forces: dropping `export`, fixing import paths, and
+  removing imports that became local.
+- **Collect what you'd improve, don't do it.** Keep a list of every bug,
+  naming issue, or conceptual wart you notice while moving, and present it at
+  the end as suggested next steps, each a separate follow-up the user can pick
+  up (or not) after the move lands.
 - Order folded code so the module reads top-down: its entry point (or
   exported seam) first, then the folded pieces, smaller ones before big ones
   (e.g. a short stub before a long block of SQL).
@@ -268,3 +278,4 @@ consumer. What was lost: nothing.
 - [ ] Folded code keeps its local names: no `ReturnType<typeof …>` or inline anonymous types where a named type used to be
 - [ ] Nothing outside the agreed scope was touched
 - [ ] Pure move: typecheck, lint, tests green; docs references updated
+- [ ] Moved code is verbatim: no bug fixes, renames or "improvements"; those are listed as suggested next steps instead
