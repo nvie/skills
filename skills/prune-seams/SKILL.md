@@ -138,20 +138,45 @@ starting?" is not a go-ahead.
 ### 5. Execute as a pure move
 
 - Concatenate, don't rewrite. Behaviour must not change.
+- Order folded code so the module reads top-down: its entry point (or
+  exported seam) first, then the folded pieces, smaller ones before big ones
+  (e.g. a short stub before a long block of SQL).
 - Unexport everything classified Local. Delete `types.ts` grab-bags by moving
   each type next to its seam or its only user.
 - Delete emptied modules with explicit paths (`git rm path/a.ts path/b.ts`),
   never globs.
-- Give every remaining module a short header saying what it is and **who uses
-  it**, e.g.:
+- Make sure every remaining module has a top-level comment that gives a quick
+  glance at two things:
+
+  1. **Its purpose:** what the module is and does, in a sentence or two.
+  2. **Its usage:** who uses it, plus any constraint that follows from that
+     (e.g. "must stay free of workerd-only imports").
 
   ```ts
   /*
-   * Seam: used by the delivery queue consumer (production ports) and by the
+   * The webhook delivery worker: runs one worker per wake, and decides what
+   * each attempt's result means. Talks to the outside world only through
+   * DeliveryWorkerPorts.
+   *
+   * Used by the delivery queue consumer (the production ports) and by the
    * delivery simulator (ports on a virtual clock). Must stay free of
    * workerd-only imports, as the simulator runs it under Node.
    */
   ```
+
+  - **Follow the repo's conventions** for top-level module comments: their
+    style (`/* */` vs `/** */`) and placement (above or below the imports).
+    Look at a few existing modules nearby first. If there's no clear
+    convention, put it directly below the imports.
+  - **Plain words, no labels.** Write "Used by …", not "Seam: used by …".
+    Seam/Local/Test hook are this skill's working terms, not something to
+    leave in the code.
+  - **Build on what's there.** If a module already has a top-level comment,
+    add only the purpose or usage it's missing, where it fits naturally.
+    Don't repeat what it already says, even if it says it differently, and
+    don't force a sentence in. If it already covers both, leave it alone.
+  - **Write the purpose for every module,** not just the usage. "Who imports
+    this" alone doesn't tell a reader what the module is for.
 
 - On a test-only export, say so: `/** Exported only for its tests, which run its SQL against real Postgres. */`
 - Fix references in docs (design docs, READMEs) that link to moved files.
@@ -190,8 +215,8 @@ caller.
 
 ```
 src/webhook-delivery/
-  DeliveryCoordinator.ts   Seam: the DO + the simulator
-  deliveryWorker.ts        Seam: the consumer + the simulator (ports, loop,
+  DeliveryCoordinator.ts   used by the DO + the simulator
+  deliveryWorker.ts        used by the consumer + the simulator (ports, loop,
                            decideOutcome, and the types the simulator needs)
 src/queues/consumers/webhook-delivery.ts
                            handler + local store + local callEndpoint;
@@ -208,6 +233,6 @@ contract moved onto the worker's port). What was lost: nothing.
 - [ ] No module has exactly one importer and no tests, unless it's library-shaped, unrelated to its caller, tested in isolation, or on a runtime boundary
 - [ ] No `types.ts` / `constants.ts` / `utils.ts` grab-bags in scope
 - [ ] Contracts live on the seam, not on the implementation
-- [ ] Every module has a header naming its users
+- [ ] Every module has a top-level comment covering its purpose and its users, in the repo's style, without the word "Seam" and without repeating what was already there
 - [ ] Nothing outside the agreed scope was touched
 - [ ] Pure move: typecheck, lint, tests green; docs references updated
