@@ -118,7 +118,8 @@ module folds into that caller.
 When an implementation module defines the contract (docs, types) that the
 seam then `Pick`s from, flip it: the contract belongs on the seam (e.g. the
 port type the consumer depends on), and the implementation satisfies it.
-That often deletes an exported type entirely.
+That often removes an export: the implementation's own type, if still
+useful, stays behind as a local, unexported name.
 
 ### 4. Propose, then wait
 
@@ -143,14 +144,19 @@ starting?" is not a go-ahead.
   (e.g. a short stub before a long block of SQL).
 - Unexport everything classified Local. Delete `types.ts` grab-bags by moving
   each type next to its seam or its only user.
+- **Unexport, don't dissolve.** Folding removes exports and files, not names.
+  An unexported type or helper costs no interface, so keep every local name
+  that names a concept (`type DeliveryStore = …`, with its docs). Never
+  replace a named type with `ReturnType<typeof …>`, `Parameters<…>` or an
+  inline anonymous type just because it's no longer exported.
 - Delete emptied modules with explicit paths (`git rm path/a.ts path/b.ts`),
   never globs.
-- Make sure every remaining module has a top-level comment that gives a quick
-  glance at two things:
+- Make sure every remaining module has a short top-level comment that gives a
+  quick glance at:
 
-  1. **Its purpose:** what the module is and does, in a sentence or two.
-  2. **Its usage:** who uses it, plus any constraint that follows from that
-     (e.g. "must stay free of workerd-only imports").
+  1. **Its purpose:** what the module is and does, in one or two sentences.
+  2. **Its usage, only when that's news:** who uses it, plus any constraint
+     that follows (e.g. "must stay free of workerd-only imports").
 
   ```ts
   /*
@@ -164,6 +170,18 @@ starting?" is not a go-ahead.
    */
   ```
 
+  - **Succinct.** As short as the content allows. Say what the reader can't
+    see from the code at a glance, then stop. No restating, no elaboration of
+    mechanics the code already shows.
+  - **No filler, ever.** Obvious things don't belong in comments. Skip any
+    sentence whose content follows from the module's location or kind: a
+    queue consumer is "used by the queue router", a route handler "by the
+    router", a DO class "by its namespace". If usage carries no news, leave it
+    out; the purpose alone is fine.
+  - **No file paths or line numbers.** Refer to other code by its concept or
+    symbol name ("the worker", `runDeliveryWorker`), never by path. Paths make
+    comments harder to read and rot on the next move.
+
   - **Follow the repo's conventions** for top-level module comments: their
     style (`/* */` vs `/** */`) and placement (above or below the imports).
     Look at a few existing modules nearby first. If there's no clear
@@ -176,10 +194,15 @@ starting?" is not a go-ahead.
     Don't repeat what it already says, even if it says it differently, and
     don't force a sentence in. If it already covers both, leave it alone.
   - **Write the purpose for every module,** not just the usage. "Who imports
-    this" alone doesn't tell a reader what the module is for.
+    this" alone doesn't tell a reader what the module is for. If a doc
+    comment right below (e.g. on the module's main class) already says it,
+    that counts.
 
 - On a test-only export, say so: `/** Exported only for its tests, which run its SQL against real Postgres. */`
-- Fix references in docs (design docs, READMEs) that link to moved files.
+- Fix references in docs (design docs, READMEs) that point at moved code. Name
+  the concept or symbol in plain text ("the consumer's `createDeliveryStore()`");
+  don't add file paths or links, and drop dead ones rather than repointing
+  them.
 
 ### 6. Verify
 
@@ -223,8 +246,9 @@ src/queues/consumers/webhook-delivery.ts
                            createDeliveryStore exported only for its test
 ```
 
-What disappeared: four modules and the exported `DeliveryStore` type (its
-contract moved onto the worker's port). What was lost: nothing.
+What disappeared: four modules, and the `DeliveryStore` export: its contract
+moved onto the worker's port, and the name stays as a local type in the
+consumer. What was lost: nothing.
 
 ## Checklist
 
@@ -233,6 +257,7 @@ contract moved onto the worker's port). What was lost: nothing.
 - [ ] No module has exactly one importer and no tests, unless it's library-shaped, unrelated to its caller, tested in isolation, or on a runtime boundary
 - [ ] No `types.ts` / `constants.ts` / `utils.ts` grab-bags in scope
 - [ ] Contracts live on the seam, not on the implementation
-- [ ] Every module has a top-level comment covering its purpose and its users, in the repo's style, without the word "Seam" and without repeating what was already there
+- [ ] Every module has a short top-level comment: its purpose, plus its users only when that's news. Repo's style, no "Seam" label, no filler, no file paths, nothing repeated from what was already there
+- [ ] Folded code keeps its local names: no `ReturnType<typeof …>` or inline anonymous types where a named type used to be
 - [ ] Nothing outside the agreed scope was touched
 - [ ] Pure move: typecheck, lint, tests green; docs references updated
