@@ -93,23 +93,22 @@ This is the style learned from hundreds of nvie's own PRs in `liveblocks`,
 - **No generic "how to test" checklist.** If testing guidance is genuinely
   non-obvious, add it inline as a note -- not as a boilerplate section.
 - Keep the title under 70 characters. Details go in the body.
+- **No ticket numbers in the title.** "Webhook delivery worker, minus the
+  actual HTTP request", not "… (LB-4044)". If the branch or commits reference
+  a ticket, close the body with a `Fixes LB-4044` line instead.
 
-### Opening line
+### Opening and closing lines
 
-Almost every PR opens one of two ways:
-
-- `This PR …` -- refactors / adds / fixes / implements / introduces / removes /
-  changes / reverts / updates
-- A one-liner like `Fixes LB-1234.` or `Fixes #1127.` when the change is
-  trivial
-
-Example openings:
+Almost every PR opens with `This PR …` -- refactors / adds / fixes /
+implements / introduces / removes / changes / reverts / updates:
 
 - `This PR refactors how storage corruption is handled during load…`
 - `This PR adds a new admin-only endpoint…`
 - `This PR introduces protocol V8, with a change in response to…`
-- `Fixes LB-2048.`
-- `Fixes #1127.`
+
+When the PR resolves a ticket or issue, the body's **last line** is
+`Fixes LB-2048` (or `Fixes #1127`). For a trivial PR, that line can be the
+entire body.
 
 ### Tone and voice
 
@@ -127,16 +126,49 @@ Example openings:
   it rather than paraphrasing it as your own fact. Keeps clear which part is
   established and which part is your read.
 
+### What the body is for
+
+The body primes the reviewer's brain so they can context-switch into the
+diff. It answers "what is the point of this PR?", ideally at the
+interface/seam level: what changes for callers, users, or neighbouring
+systems. The "Files changed" tab holds the details; the body doesn't have to.
+
+- **Talk in concepts, not code.** Describe ideas ("delivery attempts are now
+  claimed before they're sent"), not the names that implement them
+  ("`claimAttempt()` sets `claimed_until`").
+- **Implementation details only when they matter**: when the reviewer would
+  otherwise misread the diff, when a choice is surprising, or when the PR
+  *only* changes implementation (a refactor, a perf fix). Then go there.
+- **Shorter beats longer**, as long as nothing important is left out. When in
+  doubt, cut.
+
 ### Content patterns
 
 Use whichever of these fit the change; omit the rest.
 
 - **Before / After**: code blocks or `diff` blocks showing the API shape
-  change. Much more useful than prose.
+  change, when the shape change *is* the point. Much more useful than prose.
 - **Tables** with ✅ / ❌ / ⚠️ for protocol or behavior matrices.
 - **`## Why`** section when the motivation isn't obvious.
-- **`## Next steps`** when this is one step in a larger effort.
-- **`## Callouts`** for surprising decisions you want the reviewer to notice.
+- **`## Rollout`** whenever shipping takes more than merging and deploying
+  this code: a migration to run, an env var or secret to add, a flag to flip,
+  another PR that must land first, an ordering constraint. Write it as a
+  GitHub task list so the user can tick steps off as they go:
+
+  ```markdown
+  ## Rollout
+
+  - [ ] Merge #1234 first
+  - [ ] Add `WEBHOOK_SIGNING_KEY` to the production env
+  - [ ] Run the migration
+  - [ ] Merge and deploy this PR
+  - [ ] Enable the flag
+  ```
+
+  Omit the section when there's nothing beyond a normal deploy.
+
+- **`## Next steps`**: only when the user asks for it. If you think it would
+  help, suggest it in your terminal reply instead of adding it.
 - **`## Chapters`** (or similar) for long refactorings split into phases.
 - **Reviewer guidance**: "Best reviewed commit-by-commit", "Ignore the
   mechanical noise in X", "Don't be scared by the diff size -- most of it is
@@ -149,15 +181,33 @@ Use whichever of these fit the change; omit the rest.
   are GitHub-flavored markdown, so a labelled link is `[label](url)` and a
   bare URL auto-links. Never Slack's `<url|label>` -- that's Slack API mrkdwn
   and GitHub renders it as literal text.
-- **GitHub callouts**: `> [!NOTE]`, `> [!IMPORTANT]`, `> [!WARNING]` for
-  info the reviewer really should not miss.
+- **GitHub callouts** (`> [!WARNING]` etc.): almost never. At most one, and
+  only for something that would cause real damage if missed (data loss, a
+  breaking change, a deploy ordering trap). Lint noise, an intentional `XXX`,
+  or "I haven't decided yet" are not callout-worthy; mention them in a
+  sentence or leave them out.
 - **Screenshots**: for UI / rendered output, with "Before" / "After" labels
   when comparing. (The user will attach these manually; don't fabricate image
   URLs.)
 
+### Diagrams
+
+Only when the user asks for one. Use a Mermaid block, and keep it simple:
+
+- Boxes are concepts or components ("Queue", "Worker", "Customer endpoint"),
+  not function or variable names, unless a name is genuinely needed.
+- When the PR changes how a part of the system works, show it as **Before /
+  After** diagrams, or a single diagram with the parts this PR adds or
+  changes **highlighted in color** (`classDef changed fill:#fde68a` etc.).
+- A handful of nodes. If it needs a legend, it's too big.
+
 ### Identifiers and renames
 
-- Backticks around all code identifiers, types, file paths
+- Use code identifiers sparingly. Each `backticked` term is a speed bump;
+  include one only when it carries a thought the prose can't (a public API
+  name the reviewer will grep for, a log attribute, a config key). Prefer
+  describing the concept in words.
+- When you do name one, backtick it.
 - Unicode arrow `→` for renames in prose: `` Rename `toolName` → `name`  ``
 - Use `diff` fenced code blocks to show type/API changes, e.g.:
 
@@ -177,6 +227,9 @@ Use whichever of these fit the change; omit the rest.
 - No "This change is important because…" -- just state what it does
 - No AI-trailer lines or co-author tags for AI
 - No exhaustive bullet list of every tiny change when a sentence would do
+- No ticket numbers in the title
+- No `## Callouts` section, no `## Next steps` unless asked
+- No walkthrough of functions and variables when the concept would do
 - No passive voice boilerplate like "Tests have been added". Say "I've added
   tests for X."
 - No Slack markup: `<url|label>` links, `*single-asterisk bold*`, or literal
@@ -209,7 +262,7 @@ for something that simple is longer, cut it.
 - **Large/complex PRs** (several interacting ideas, a new subsystem, a
   migration, anything where the reviewer needs orientation before the diff):
   open with `This PR …`, then use headings (`## Why`, `## Before` / `## After`,
-  `## Next steps`, chapters). Call out behavioral vs pure-refactoring. Flag
+  `## Rollout`, chapters). Call out behavioral vs pure-refactoring. Flag
   reviewer guidance up front. Big diff alone doesn't qualify a PR for this
   shape -- interacting moving parts do.
 
@@ -267,6 +320,22 @@ echo the title, body, or URL back into the terminal -- the user reviews
 everything in the browser. Just confirm:
 
 > I've opened the PR draft for you in the browser.
+
+If you think a `## Next steps` section or a diagram would help, add one short
+line suggesting it. Nothing else.
+
+## Iterating on the draft
+
+If the user replies "include more", "include less", "more detail", "shorter",
+or similar, redraft the body at the requested level of detail and run
+`gh pr create --web` again to open a fresh pre-filled page. Keep the same
+title, base, and head unless told otherwise.
+
+- **Less**: drop implementation detail and identifiers first, then secondary
+  points, until only the core idea and anything reviewer-critical (rollout,
+  behavioral changes) remain.
+- **More**: add the next layer down: the key mechanism, a notable design
+  choice, or a Before / After. Still concepts before code.
 
 ## Critical rules
 
