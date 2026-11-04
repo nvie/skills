@@ -44,13 +44,25 @@ Only plain English words a human would speak to a colleague.
 Run it with Bash, text in single quotes:
 
 ```sh
-pkill -x say; say -r 190 'The deploy to production is done.'
+pkill -f '^say -r '; while pgrep -qf '^say --rate='; do sleep 1; done; say -r 190 'The deploy to production is done.'
 ```
 
-The `pkill` stops anything still being spoken, so two voices never overlap.
+For a notification from the notify skill, end with this instead:
+
+```sh
+say --rate=190 'The deploy to production is done.'
+```
+
+The two spellings of the rate are what tell the speech apart, so two voices
+never overlap and notifications are never lost:
+
+- The `pkill` stops ordinary speech (`-r`), so a new sentence or notification
+  cuts it off.
+- The `while` waits for a notification (`--rate=`) to finish, so nothing cuts
+  one off.
 
 Avoid apostrophes in the sentence ("it is", not "it's") so the single quotes
-stay intact. `-r 190` is a bit above the usual 175 words per minute. Don't pass a
+stay intact. 190 is a bit above the usual 175 words per minute. Don't pass a
 voice; the user's system default applies.
 
 When the user ran `/say` directly, don't print anything after speaking
@@ -60,11 +72,11 @@ this one, that skill decides what goes in the transcript.
 ## Examples
 
 **User:** "/say the tests finished"
-→ `pkill -x say; say -r 190 'The tests are done.'`
+→ speaks "The tests are done."
 
 **User:** "/say summarize the PR review results" (review found two blocking
 issues in the auth middleware and five nits)
-→ `pkill -x say; say -r 190 'The review found two blocking issues, both in the auth code.'`
+→ speaks "The review found two blocking issues, both in the auth code."
 
 ## Checklist
 

@@ -44,8 +44,9 @@ The outcome, not the process. Lead with what the user would act on.
 
 ## How to speak it
 
-Invoke the `say` skill with the sentence. It owns the spoken-sentence rules
-(one sentence, no links, code, or long numbers) and runs `say`.
+Invoke the `say` skill with the sentence, as a notification. It owns the
+spoken-sentence rules (one sentence, no links, code, or long numbers) and runs
+`say` in the form that cuts off other speech but not other notifications.
 
 Also write the full details in the transcript as usual. The spoken sentence
 is the alert; the transcript is where the user reads what happened.

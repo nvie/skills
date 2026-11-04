@@ -66,14 +66,16 @@ Run this with Bash, with `run_in_background: true`, since long narrations
 outlast the foreground timeout and the user can keep working meanwhile:
 
 ```sh
-pkill -x say; say -r 190 <<'SPOKEN'
+pkill -f '^say -r '; while pgrep -qf '^say --rate='; do sleep 1; done; say -r 190 <<'SPOKEN'
 I fixed it in the auth middleware, and there's more detail in the Linear ticket.
 
 Three tests failed, the rest pass.
 SPOKEN
 ```
 
-- The `pkill` stops a narration that's still playing, so two never overlap.
+- The `pkill` stops a narration or sentence that's still playing. The `while`
+  waits for a notification to finish, which is spoken with `--rate=` so it's
+  never cut off. See the say skill.
 - The quoted heredoc makes apostrophes and dollar signs safe, so write natural
   contractions.
 - `-r 190` is a bit above the usual 175 words per minute. Change it only if the
@@ -88,11 +90,11 @@ SPOKEN
 Print one line and nothing else:
 
 ```
-Reading aloud. To stop: `! pkill -x say`
+Reading aloud. To stop: `! pkill -f '^say -r '`
 ```
 
 Don't repeat the narration in the transcript. If the user asks you to stop, run
-`pkill -x say`. When the background task reports that it has finished, don't
+`pkill -f '^say -r '`. When the background task reports that it has finished, don't
 comment on it.
 
 ## Examples
@@ -118,5 +120,5 @@ comment on it.
 - [ ] Same order and mostly the same words as the message
 - [ ] Argument instructions followed over the defaults
 - [ ] No URLs, tokens, ticket numbers, hashes, paths, or code spoken
-- [ ] Run in the background, with `pkill` first and a quoted heredoc
+- [ ] Run in the background, with the `pkill` and `while` first, and a quoted heredoc
 - [ ] Only the one-line stop hint printed
