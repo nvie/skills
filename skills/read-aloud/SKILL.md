@@ -5,7 +5,7 @@ description: >
   way a person would read it: same order and mostly the same words, so the user
   can follow along on screen, but without URLs, tokens, ticket numbers, code,
   or anything else that is painful to hear. Takes optional instructions as an
-  argument ("only the conclusion", "skip the table", "in Dutch"). Use when the
+  argument ("only the conclusion", "skip the table", "slower"). Use when the
   user runs /read-aloud, or asks to "read that aloud", "read that out loud",
   "read this to me", or "read me your last message". For a one-sentence spoken
   update, use the say skill instead.
@@ -24,9 +24,9 @@ message, say so instead of speaking.
 ## Instructions in the argument
 
 Anything the user passes as an argument overrides the defaults below: what to
-read, what to skip, how much to condense, language, voice, or speed.
+read, what to skip, how much to condense, voice, or speed.
 
-Without an argument, apply the defaults as they are.
+Without an argument, apply the defaults as they are. Always narrate in English.
 
 ## Narrating
 
@@ -79,8 +79,7 @@ SPOKEN
 - `-r 190` is a bit above the usual 175 words per minute. Change it only if the
   argument asks for another speed.
 - Don't pass a voice unless the argument asks for one. Pick voices from
-  `say -v '?'` rather than guessing a name, and write the narration in the
-  requested language.
+  `say -v '?'` rather than guessing a name.
 - Run the `say` command directly rather than going through the say skill, whose
   one-sentence limit doesn't apply here.
 
