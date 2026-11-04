@@ -44,11 +44,14 @@ Only plain English words a human would speak to a colleague.
 Run it with Bash, text in single quotes:
 
 ```sh
-say 'The deploy to production is done.'
+pkill -x say; say -r 190 'The deploy to production is done.'
 ```
 
+The `pkill` stops anything still being spoken, so two voices never overlap.
+
 Avoid apostrophes in the sentence ("it is", not "it's") so the single quotes
-stay intact. Don't pass a voice or rate; the user's system defaults apply.
+stay intact. `-r 190` is a bit above the usual 175 words per minute. Don't pass a
+voice; the user's system default applies.
 
 When the user ran `/say` directly, don't print anything after speaking
 besides the sentence itself. When another skill (like notify) speaks through
@@ -57,11 +60,11 @@ this one, that skill decides what goes in the transcript.
 ## Examples
 
 **User:** "/say the tests finished"
-→ `say 'The tests are done.'`
+→ `pkill -x say; say -r 190 'The tests are done.'`
 
 **User:** "/say summarize the PR review results" (review found two blocking
 issues in the auth middleware and five nits)
-→ `say 'The review found two blocking issues, both in the auth code.'`
+→ `pkill -x say; say -r 190 'The review found two blocking issues, both in the auth code.'`
 
 ## Checklist
 
