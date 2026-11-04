@@ -2,10 +2,10 @@
 name: say
 description: >
   Speak a short sentence out loud using the macOS `say` command. Use when the
-  user runs /say, or asks to "say it out loud", "read this to me", "speak",
-  or "tell me out loud". Also used by the notify skill to deliver audible
-  updates. One plain English sentence at most -- never paragraphs, links,
-  code, long numbers, or technical data.
+  user runs /say, or asks to "say it out loud", "speak", or "tell me out
+  loud". Also used by the notify skill to deliver audible updates. One plain
+  English sentence at most -- never paragraphs, links, code, long numbers, or
+  technical data.
 ---
 
 # Say

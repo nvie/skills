@@ -6,9 +6,9 @@ description: >
   can follow along on screen, but without URLs, tokens, ticket numbers, code,
   or anything else that is painful to hear. Takes optional instructions as an
   argument ("only the conclusion", "skip the table", "in Dutch"). Use when the
-  user runs /read-aloud, or asks to "read that aloud", "read that out loud", or
-  "read me your last message". For a one-sentence spoken update, use the say
-  skill instead.
+  user runs /read-aloud, or asks to "read that aloud", "read that out loud",
+  "read this to me", or "read me your last message". For a one-sentence spoken
+  update, use the say skill instead.
 ---
 
 # Read Aloud
