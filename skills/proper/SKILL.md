@@ -8,6 +8,7 @@ description: >
   diagnoses why the request feels awkward today, proposes a design change
   that makes the feature easy, and -- if the strategic path is non-trivial
   -- hands off to /mikado to execute it in safe incremental steps.
+effort: high
 ---
 
 # The Proper™ Way

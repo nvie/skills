@@ -4,6 +4,7 @@ description: >
   Mikado method workflow for complex refactorings. Use when the user invokes
   /mikado, mentions "mikado graph", or wants to break a large code change into
   safe, incremental steps with automatic revert-on-failure.
+effort: high
 ---
 
 # Mikado Method

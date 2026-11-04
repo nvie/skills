@@ -12,6 +12,7 @@ description: >
   "simplify" modules, asks "what's the role of this seam?" or "why is this
   exported?", or complains about types.ts grab-bags and one-function-per-file
   layouts.
+effort: high
 ---
 
 # Prune seams: as few module boundaries as possible
