@@ -23,9 +23,10 @@ trailing commentary, no options to pick from. The entire response is the
 message body. The user copy-pastes the whole thing, so any extra word is
 something they have to delete by hand.
 
-Put the message in a fenced code block. That keeps the terminal from
-rendering the markdown away (`*bold*` must stay literal asterisks, not turn
-bold), and the fences themselves aren't part of what gets copied.
+Don't wrap the message in a code fence either. Since the response is the
+message and nothing else, the user grabs it raw (e.g. with `/copy`), and
+fences would just be two more lines to delete. (The fenced blocks in the
+examples below only mark where each message starts and ends.)
 
 ## Voice
 
@@ -84,7 +85,7 @@ Use Slack's own markup -- it survives both a plain paste and cmd+shift+f:
 | inline code   | `` `code` ``                   |
 | code block    | triple backticks               |
 | quote         | `> quoted`                     |
-| bullet        | `• item` (literal bullet char) |
+| bullet        | `- item`                       |
 | numbered      | `1. item`                      |
 | link          | bare URL, nothing else         |
 
@@ -101,37 +102,22 @@ Avoid:
   cmd+shift+f only linkifies the URL inside it, leaving a stray `<` and
   `|label>` as visible text. Same for markdown `[label](url)`.
 
-## Bullets: use a literal `•`, never `-` or `*`
+## Bullets
 
-Slack's cmd+shift+f does **not** turn pasted `- item` or `* item` lines into
-native bullets. They stay as literal text with a dash or asterisk in front,
-which looks sloppy. (Slack only auto-converts those when you _type_ them
-directly into the composer, not on paste.)
-
-So don't emit markdown list syntax at all. Write a real Unicode bullet
-character `•` (U+2022) followed by one space:
-
-```
-• First thing
-• Second thing
-• Third thing
-```
-
-Not:
+Plain markdown `- item`, one per line. Slack's cmd+shift+f turns pasted
+`-` lines into native bullets.
 
 ```
 - First thing
-* Second thing
+- Second thing
+- Third thing
 ```
 
-This pastes correctly with or without cmd+shift+f, because there's nothing
-to convert -- the bullet is already there.
-
-For the rare nested level, indent with two spaces and use `◦` (U+25E6):
+For the rare nested level, indent with two spaces:
 
 ```
-• Parent item
-  ◦ Child item
+- Parent item
+  - Child item
 ```
 
 Numbered lists are fine as `1.` / `2.` -- digits followed by a period read
@@ -190,10 +176,10 @@ them is nvie's read, so it gets "could be", "would explain", "it looks like".
 
 ## Checklist
 
-- [ ] Response contains the message and nothing else
+- [ ] Response contains the message and nothing else, no code fence around it
 - [ ] No hard-wrapped lines
 - [ ] Single asterisks for bold, no `##` headings, no tables
-- [ ] Bullets are literal `•` characters, never `-` or `*`
+- [ ] Bullets are `- item`
 - [ ] Sounds like a person, not a changelog -- but properly capitalized
 - [ ] Sentences start with a capital letter
 - [ ] At most one em-dash (or `--`), ideally none
