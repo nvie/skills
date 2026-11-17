@@ -103,7 +103,16 @@ trivial verdict with an explanation.
 ### 3. Bump the trivial ones
 
 Upgrade all `trivial` packages together (`ncu -u --filter a,b,c ...`), install,
-verify.
+dedupe (`pnpm dedupe` / `npm dedupe` / `yarn dedupe`), verify.
+
+**A new duplicate counts as red.** After deduping, list every package the
+lockfile holds at more than one version and compare with the lockfile at
+`HEAD`. Any duplicate that wasn't there before fails the batch exactly like a
+failing test: bisect to the culprit, then either co-bump whatever resolves it
+(e.g. the sibling package that still pins the old version) or move the culprit
+to the attention list with the duplicate as its reason. Duplicates that were
+already there are reported once, with `pnpm why`-style cause, never silently
+accepted.
 
 - **Green** → commit via `gcm --yolo "<round>-level dependency upgrades"`.
 - **Red** → bisect: revert half the batch (restore `package.json` files +
