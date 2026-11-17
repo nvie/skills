@@ -5,7 +5,8 @@ description: >
   using npm-check-updates, respecting the project's release-age cooldown.
   Researches each update's changelog in parallel, bumps the uneventful ones
   silently, runs the tests, commits, and surfaces only the packages that need a
-  human decision -- a few at a time, most severe first. Works in monorepos
+  human decision -- a few at a time, most severe first. Adds entries to the
+  project's own changelog for fixes its users would notice. Works in monorepos
   (--workspaces, syncpack). Use when the user runs /upgrade-deps, or asks to
   "upgrade deps", "bump dependencies", "update packages", or "run ncu".
 ---
@@ -45,6 +46,12 @@ The user can override the plan at any point ("skip majors today", "leave
 6. **Baseline.** Run verification once before touching anything. Record
    pre-existing failures so they're never blamed on an upgrade. If the
    baseline is red, tell the user in one line and ask whether to proceed.
+7. **Project changelog.** Look for a changelog the project keeps for its own
+   users (`CHANGELOG.md`, `CHANGES.md`, `HISTORY.md`, a `.changeset/` dir, a
+   release-notes file, …). If there is one, learn its style from the recent
+   entries: where unreleased changes go, section names, tense, voice, how
+   granular an entry is, whether it names dependencies at all. No changelog →
+   skip everything about changelogs below.
 
 Keep a session-local **reject list**: packages the user decided not to
 upgrade. Pass them as `--reject` to every later ncu call so they don't
@@ -95,10 +102,16 @@ message. Each gets: package name, from → to, and our usage sites. Each must:
       or needs a decision
     - `low`: cosmetic, opt-in, or tooling-only consistency issues
   - `reason` (if attention): one line, citing our usage site if relevant
+  - `user_visible` (only if the project has a changelog): one line per fix or
+    change that end users of *this project* would notice through our usage
+    (e.g. our Markdown renderer's dependency fixes a rendering bug in output
+    we show), or `none`. Dev tooling (test runners, linters, bundler dev
+    server, types) is `none` unless it changes the shipped product.
 
 `trivial` = no change touches API surface we use, or only additive/fix
 changes. Anything ambiguous about code we use is `attention`. Never pad a
-trivial verdict with an explanation.
+trivial verdict with an explanation. A `user_visible` note on a trivial
+package is not padding: it feeds the changelog (see "Changelog entries").
 
 ### 3. Bump the trivial ones
 
@@ -191,6 +204,24 @@ upgrade.
 
 Each green upgrade is committed as it lands. Pause only when something needs
 the user. When the attention list is empty, the round is done → next round.
+
+## Changelog entries
+
+Whenever an upgrade commit lands that carries a `user_visible` note, add an
+entry to the project's changelog, written the way that project writes them:
+describe what a user notices (fixed, improved, changed), not the bump.
+Mention the dependency only if the project's entries do. Verify a claim
+against our usage before writing it; when unsure whether users can notice,
+leave it out and name it in the report instead.
+
+Commit it **separately**, right after the upgrade commit it describes, via
+`gcm --yolo "Changelog: <what users notice>"`. Never let changelog edits
+ride along in an upgrade commit. If the user said to leave the changelog
+uncommitted, keep the edits in the working tree instead and make sure no
+`gcm` call picks them up (stage only the upgrade's files first).
+
+In the report, add one line per round that touched the changelog:
+`Changelog: <entry text, abbreviated>`.
 
 ## Ground rules
 
